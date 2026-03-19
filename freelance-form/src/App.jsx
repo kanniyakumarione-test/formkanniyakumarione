@@ -4,6 +4,7 @@ import ServiceForm from "./components/ServiceForm";
 import AdminPanel from "./components/AdminPanel";
 import AdminLoginModal from "./components/AdminLoginModal";
 import Agreement from "./pages/Agreement";
+import Quotation from "./pages/Quotation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,6 +16,10 @@ function App() {
 
   if (window.location.pathname === "/agreement") {
   return <Agreement />;
+}
+
+if (window.location.pathname === "/quotation") {
+  return <Quotation />;
 }
 
   // 🔐 Persist login
