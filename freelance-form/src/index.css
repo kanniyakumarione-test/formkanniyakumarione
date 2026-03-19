@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input-ultra {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.input-ultra::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input-ultra:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+  background: rgba(255, 255, 255, 0.06);
+}
+/* 🌑 GLOBAL */
+body {
+  background: #0a0a0a;
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* 🔥 INPUT (MAIN) */
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ✨ PREMIUM INPUT (slightly elevated) */
+.input-premium {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #111, #0a0a0a);
+  border: 1px solid #222;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input-premium::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input-premium:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+/* 🔘 BUTTON */
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 500;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* 📦 CARD */
+.card {
+  padding: 16px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+}
+
+/* 🌟 MODAL GLASS EFFECT */
+.modal-glass {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+}
+
+/* ✨ GLOW EFFECT */
+.glow {
+  position: relative;
+}
+
+.glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  opacity: 0.1;
+  filter: blur(20px);
+  z-index: -1;
+}

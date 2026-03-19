@@ -1,0 +1,292 @@
+import { useState } from "react";
+import jsPDF from "jspdf";
+import logo from "../assets/logo.png";
+import { toast } from "react-toastify";
+
+const servicesList = [
+  "Website Development",
+  "SEO Optimization",
+  "Google Business Profile",
+  "Resume Services",
+  "Social Media Marketing",
+  "Logo & Branding Design",
+  "Content Writing",
+  "YouTube SEO",
+  "Instagram Growth",
+  "E-commerce Store Setup",
+  "Landing Page Design",
+  "Google Ads / PPC",
+];
+
+export default function Agreement() {
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    services: [],
+    signature: "",
+  });
+
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const toggleService = (service) => {
+    setForm((prev) => {
+      const exists = prev.services.includes(service);
+      return {
+        ...prev,
+        services: exists
+          ? prev.services.filter((s) => s !== service)
+          : [...prev.services, service],
+      };
+    });
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // 🟡 WATERMARK (CENTER)
+    doc.setGState(new doc.GState({ opacity: 0.08 }));
+    doc.addImage(logo, "PNG", 55, 90, 100, 60);
+    doc.setGState(new doc.GState({ opacity: 1 }));
+
+    // 🔵 HEADER
+    doc.addImage(logo, "PNG", 20, 10, 25, 15);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("KanniyakumariOne", 50, 18);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("Freelance Digital Services", 50, 24);
+    doc.setTextColor(0);
+
+    // 🔵 TITLE
+    doc.setFontSize(14);
+    doc.text("SERVICE AGREEMENT", 105, 40, { align: "center" });
+    doc.line(20, 45, 190, 45);
+
+    // 🔵 DETAILS
+    doc.setFontSize(11);
+    doc.text(`Client Name: ${form.name}`, 20, 60);
+    doc.text(`Phone Number: ${form.phone}`, 20, 70);
+    doc.text(`Services: ${form.services.join(", ")}`, 20, 80);
+
+    // 🔵 AGREEMENT TEXT
+    const agreementText = `
+This Service Agreement is made between ${form.name} (hereinafter referred to as the Client) and KanniyakumariOne. By submitting this form, ${form.name} agrees to engage KanniyakumariOne for the requested service under the terms outlined below.
+
+I agree to provide accurate and complete information regarding the project requirements. KanniyakumariOne will make every effort to deliver the requested service within a reasonable timeframe depending on the complexity and scope of the work.
+
+I understand and agree that payment must be made either partially or in full before the final delivery of the project. Any additional features or modifications requested after the initial agreement may result in additional charges.
+
+KanniyakumariOne provides limited revisions based on the type of service selected. Once the project work has commenced, no refunds will be issued under any circumstances.
+
+I acknowledge that delays caused due to lack of communication, delayed content submission, or third-party services are not the responsibility of KanniyakumariOne.
+
+By signing this agreement, I confirm that I have read, understood, and agreed to all terms and conditions mentioned in this document. This agreement is legally binding and valid without a physical signature.
+`;
+
+    const paragraphs = agreementText.split("\n");
+
+    let y = 95;
+
+    paragraphs.forEach((para) => {
+      if (para.trim() === "") return;
+
+      const lines = doc.splitTextToSize(para.trim(), 170);
+      doc.text(lines, 20, y);
+
+      y += lines.length * 7 + 4;
+    });
+
+    // 🔵 SIGNATURES
+    y += 10;
+
+    // CLIENT
+    doc.text("Client Signature:", 20, y);
+    doc.line(20, y + 10, 80, y + 10);
+    doc.text(form.signature, 20, y + 8);
+
+    // COMPANY
+    doc.text("For KanniyakumariOne:", 120, y);
+    doc.line(120, y + 10, 180, y + 10);
+    doc.text("Authorized Signatory", 120, y + 8);
+
+    y += 25;
+
+    doc.text("Date:", 20, y);
+    doc.text(new Date().toLocaleDateString(), 40, y);
+
+    // 🔴 STAMP BOX
+    const stampX = 110;
+    const stampY = y - 40;
+
+    doc.setDrawColor(40, 70, 160);
+    doc.setLineWidth(1.5);
+    doc.rect(stampX, stampY, 80, 40);
+
+    doc.setTextColor(40, 70, 160);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("KANNIYAKUMARIONE", stampX + 40, stampY + 10, {
+      align: "center",
+    });
+
+    doc.setFontSize(10);
+    doc.text("SERVICE AGREEMENT", stampX + 40, stampY + 18, {
+      align: "center",
+    });
+
+    doc.setFontSize(9);
+    doc.text(new Date().toLocaleDateString(), stampX + 40, stampY + 26, {
+      align: "center",
+    });
+
+    doc.text("SIGN:", stampX + 8, stampY + 34);
+    doc.line(stampX + 25, stampY + 34, stampX + 70, stampY + 34);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("ROSHINTH SOJAN", stampX + 25, stampY + 32);
+
+    doc.setTextColor(0);
+
+    // 🔵 FOOTER
+    doc.setFontSize(9);
+    doc.text(
+      "This document is digitally generated by KanniyakumariOne and is valid without physical signature.",
+      105,
+      285,
+      { align: "center" }
+    );
+
+    // PREVIEW
+    const blob = doc.output("blob");
+    const url = URL.createObjectURL(blob);
+    setPdfUrl(url);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (form.services.length === 0) {
+      toast.error("Select at least one service");
+      return;
+    }
+
+    generatePDF();
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white px-6 py-10">
+      <div className="max-w-2xl mx-auto">
+
+        <h1 className="text-3xl mb-6 text-center">Agreement</h1>
+
+        {/* 📜 READ AGREEMENT FIRST */}
+        <div className="bg-[#111] p-6 rounded-xl border border-gray-800 mb-8 text-sm text-gray-300 leading-relaxed shadow-lg">
+          <h3 className="text-white font-semibold mb-3 text-lg">Terms & Conditions</h3>
+          <p className="mb-4">
+            This Service Agreement is made between <span className="text-blue-400 font-bold">{form.name || "___(Client Name)___"}</span> and KanniyakumariOne.
+            By submitting this form, the Client agrees to engage KanniyakumariOne under the terms below:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 mb-4 text-gray-400">
+            <li>
+              I agree to provide accurate and complete information regarding the project requirements.
+              KanniyakumariOne will make every effort to deliver the requested service within a reasonable timeframe.
+            </li>
+            <li>
+              I understand that payment must be made either partially or in full before the final delivery.
+              Any additional features requested after the initial agreement may result in additional charges.
+            </li>
+            <li>
+              KanniyakumariOne provides limited revisions based on the type of service selected.
+              Once the project work has commenced, no refunds will be issued under any circumstances.
+            </li>
+            <li>
+              I acknowledge that delays caused due to lack of communication, delayed content submission,
+              or third-party services are not the responsibility of KanniyakumariOne.
+            </li>
+          </ul>
+          <p className="text-xs text-gray-500 italic">By generating this agreement, you acknowledge these terms.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          <input name="name" placeholder="Full Name" onChange={handleChange} className="input" required />
+          <input name="phone" placeholder="Phone Number" onChange={handleChange} className="input" required />
+
+          {/* MULTI SELECT */}
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Select Services</p>
+            <div className="flex flex-wrap gap-2">
+              {servicesList.map((s, i) => {
+                const active = form.services.includes(s);
+                return (
+                  <button
+                    type="button"
+                    key={i}
+                    onClick={() => toggleService(s)}
+                    className={`px-3 py-2 rounded-lg text-sm border ${
+                      active
+                        ? "bg-blue-500 border-blue-500"
+                        : "bg-[#111] border-gray-700"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <input
+            name="signature"
+            placeholder="Type your name as signature"
+            onChange={handleChange}
+            className="input"
+            required
+          />
+
+          <button className="btn">Generate Agreement</button>
+
+        </form>
+      </div>
+
+      {/* PREVIEW */}
+      {pdfUrl && (
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+          <div className="bg-[#111] w-full max-w-4xl h-[90vh] flex flex-col rounded-xl">
+
+            <div className="flex justify-between p-3 border-b border-gray-700">
+              <h2>Preview</h2>
+              <button onClick={() => setPdfUrl(null)}>✕</button>
+            </div>
+
+            <iframe src={pdfUrl} className="flex-1 w-full" />
+
+            <div className="flex gap-3 p-3 border-t border-gray-700">
+              <button
+                onClick={() =>
+                  document.querySelector("iframe").contentWindow.print()
+                }
+                className="btn"
+              >
+                Print
+              </button>
+
+              <a href={pdfUrl} download className="btn">
+                Download
+              </a>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
