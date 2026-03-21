@@ -6,12 +6,14 @@ export default function ServiceForm({ service, onClose }) {
     name: "",
     phone: "",
     email: "",
+    location: "",
     budget: "",
     message: "",
     service: service,
   });
 
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   // 🔄 Handle input
   const handleChange = (e) => {
@@ -19,6 +21,35 @@ export default function ServiceForm({ service, onClose }) {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const fillCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Location is not supported on this device");
+      return;
+    }
+
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData((current) => ({
+          ...current,
+          location: `Lat ${latitude.toFixed(6)}, Lng ${longitude.toFixed(6)}`,
+        }));
+        toast.success("Current location added");
+        setLocating(false);
+      },
+      () => {
+        toast.error("Could not get your current location");
+        setLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      }
+    );
   };
 
   // 🚀 Submit
@@ -54,6 +85,7 @@ export default function ServiceForm({ service, onClose }) {
         name: "",
         phone: "",
         email: "",
+        location: "",
         budget: "",
         message: "",
         service: service,
@@ -130,6 +162,25 @@ export default function ServiceForm({ service, onClose }) {
               onChange={handleChange}
               className="input-ultra"
             />
+
+            <div className="space-y-2">
+              <input
+                name="location"
+                placeholder="Location"
+                value={formData.location}
+                onChange={handleChange}
+                className="input-ultra"
+              />
+
+              <button
+                type="button"
+                onClick={fillCurrentLocation}
+                disabled={locating}
+                className="w-full py-2 rounded-lg border border-white/10 bg-white/5 text-sm hover:bg-white/10 transition disabled:opacity-50"
+              >
+                {locating ? "Getting location..." : "Use Current Location"}
+              </button>
+            </div>
 
             <input
               name="budget"

@@ -11,6 +11,7 @@ export default function AdminPanel() {
     name: "",
     phone: "",
     email: "",
+    location: "",
     budget: "",
     message: "",
     service: "",
@@ -137,6 +138,7 @@ export default function AdminPanel() {
         name: "",
         phone: "",
         email: "",
+        location: "",
         budget: "",
         message: "",
         service: "",
@@ -153,13 +155,26 @@ export default function AdminPanel() {
   const filtered = (data || []).filter(
     (d) =>
       d.name?.toLowerCase().includes(search.toLowerCase()) ||
-      d.service?.toLowerCase().includes(search.toLowerCase())
+      d.service?.toLowerCase().includes(search.toLowerCase()) ||
+      d.location?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const openWhatsApp = (row) => {
-    const phone = row.phone?.replace(/\D/g, "").replace(/^91/, "");
-    const url = `https://wa.me/91${phone}`;
+  const openWhatsAppByPhone = (value) => {
+    const digits = String(value || "").replace(/\D/g, "");
+
+    if (!digits) {
+      window.alert("Enter a phone number first.");
+      return;
+    }
+
+    const phone =
+      digits.length === 10 ? `91${digits}` : digits.startsWith("91") ? digits : digits;
+    const url = `https://wa.me/${phone}`;
     window.open(url, "_blank");
+  };
+
+  const openWhatsApp = (row) => {
+    openWhatsAppByPhone(row.phone);
   };
 
   const startEditing = (row) => {
@@ -189,6 +204,7 @@ export default function AdminPanel() {
       "phone",
       "service",
       "email",
+      "location",
       "budget",
       "message",
       "status",
@@ -335,6 +351,14 @@ export default function AdminPanel() {
           />
 
           <input
+            name="location"
+            value={newLead.location}
+            onChange={handleNewLeadChange}
+            placeholder="Location"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+          />
+
+          <input
             name="budget"
             value={newLead.budget}
             onChange={handleNewLeadChange}
@@ -348,6 +372,14 @@ export default function AdminPanel() {
             className="bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2 font-medium disabled:opacity-50"
           >
             {isAddingLead ? "Adding..." : "Add Lead"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openWhatsAppByPhone(newLead.phone)}
+            className="bg-green-600 hover:bg-green-500 rounded-lg px-4 py-2 font-medium"
+          >
+            Chat on WhatsApp
           </button>
 
           <textarea
@@ -448,6 +480,11 @@ export default function AdminPanel() {
                 </div>
 
                 <div>
+                  <p className="text-xs text-gray-400 mb-1">Location</p>
+                  {renderInput(row, "location", "Location", isEditing)}
+                </div>
+
+                <div>
                   <p className="text-xs text-gray-400 mb-1">Budget</p>
                   {renderInput(row, "budget", "Budget", isEditing)}
                 </div>
@@ -493,6 +530,7 @@ export default function AdminPanel() {
               </div>
 
               <button
+                type="button"
                 onClick={() => openWhatsApp(row)}
                 className="mt-3 w-full bg-green-500 py-2 rounded-lg"
               >
@@ -519,6 +557,7 @@ export default function AdminPanel() {
               <th className="p-3 text-left">Phone</th>
               <th className="p-3 text-left">Service</th>
               <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Location</th>
               <th className="p-3 text-left">Budget</th>
               <th className="p-3 text-left">Message</th>
               <th className="p-3 text-left">Status</th>
@@ -565,6 +604,15 @@ export default function AdminPanel() {
                       row,
                       "email",
                       "Email",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[220px]">
+                    {renderInput(
+                      row,
+                      "location",
+                      "Location",
                       isEditing,
                       "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
                     )}
@@ -642,6 +690,7 @@ export default function AdminPanel() {
                       )}
 
                       <button
+                        type="button"
                         onClick={() => openWhatsApp(row)}
                         className="bg-green-500 px-3 py-1 rounded"
                       >
