@@ -4,6 +4,9 @@ export default function AdminPanel() {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [deletingRowIndex, setDeletingRowIndex] = useState(null);
+  const [editingRowIndex, setEditingRowIndex] = useState(null);
+  const [draftRow, setDraftRow] = useState(null);
+  const [savingRowIndex, setSavingRowIndex] = useState(null);
   const [newLead, setNewLead] = useState({
     name: "",
     phone: "",
@@ -26,7 +29,23 @@ export default function AdminPanel() {
     }
   };
 
-  // 🔄 Auto fetch every 5s
+  const saveField = async (rowIndex, field, value) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        rowIndex: Number(rowIndex),
+        [field]: value,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Update failed");
+    }
+  };
+
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 5000);
@@ -34,21 +53,21 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, []);
 
-  // 🔄 Update status / notes
   const updateField = async (rowIndex, field, value) => {
+    setData((current) =>
+      current.map((row) =>
+        Number(row.rowIndex) === Number(rowIndex)
+          ? { ...row, [field]: value }
+          : row
+      )
+    );
+
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          rowIndex: Number(rowIndex),
-          [field]: value,
-        }),
-      });
+      await saveField(rowIndex, field, value);
     } catch (err) {
       console.error("Update failed");
+      await fetchData();
+      window.alert(`Could not update ${field}. Please try again.`);
     }
   };
 
@@ -131,27 +150,124 @@ export default function AdminPanel() {
     }
   };
 
-  // 🔍 Search
   const filtered = (data || []).filter(
     (d) =>
       d.name?.toLowerCase().includes(search.toLowerCase()) ||
       d.service?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 📱 WhatsApp
   const openWhatsApp = (row) => {
     const phone = row.phone?.replace(/\D/g, "").replace(/^91/, "");
     const url = `https://wa.me/91${phone}`;
     window.open(url, "_blank");
   };
 
+  const startEditing = (row) => {
+    setEditingRowIndex(row.rowIndex);
+    setDraftRow({ ...row });
+  };
+
+  const cancelEditing = () => {
+    setEditingRowIndex(null);
+    setDraftRow(null);
+  };
+
+  const handleDraftChange = (field, value) => {
+    setDraftRow((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const saveRow = async (row) => {
+    if (!draftRow) {
+      return;
+    }
+
+    const fieldsToSave = [
+      "name",
+      "phone",
+      "service",
+      "email",
+      "budget",
+      "message",
+      "status",
+      "notes",
+    ];
+
+    const changedFields = fieldsToSave.filter(
+      (field) => (row[field] || "") !== (draftRow[field] || "")
+    );
+
+    if (changedFields.length === 0) {
+      cancelEditing();
+      return;
+    }
+
+    setSavingRowIndex(row.rowIndex);
+
+    try {
+      await Promise.all(
+        changedFields.map((field) =>
+          saveField(row.rowIndex, field, draftRow[field] || "")
+        )
+      );
+
+      setData((current) =>
+        current.map((item) =>
+          Number(item.rowIndex) === Number(row.rowIndex)
+            ? { ...item, ...draftRow }
+            : item
+        )
+      );
+      cancelEditing();
+    } catch (err) {
+      console.error("Save failed");
+      await fetchData();
+      window.alert("Could not save changes. Please try again.");
+    } finally {
+      setSavingRowIndex(null);
+    }
+  };
+
+  const renderInput = (
+    row,
+    field,
+    placeholder,
+    isEditing,
+    className = "bg-[#1a1a1a] border border-gray-700 rounded p-2 w-full"
+  ) =>
+    isEditing ? (
+      <input
+        value={draftRow?.[field] || ""}
+        onChange={(e) => handleDraftChange(field, e.target.value)}
+        placeholder={placeholder}
+        className={className}
+      />
+    ) : (
+      <p className="break-words text-sm text-white">{row[field] || "-"}</p>
+    );
+
+  const renderTextarea = (row, field, placeholder, isEditing, className) =>
+    isEditing ? (
+      <textarea
+        value={draftRow?.[field] || ""}
+        onChange={(e) => handleDraftChange(field, e.target.value)}
+        placeholder={placeholder}
+        rows="3"
+        className={className}
+      />
+    ) : (
+      <p className="break-words whitespace-pre-wrap text-sm text-white">
+        {row[field] || "-"}
+      </p>
+    );
+
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white p-4 sm:p-6">
-
-      {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-semibold tracking-wide">
-          📊 Admin Dashboard
+          Admin Dashboard
         </h1>
 
         <div className="flex gap-3 w-full sm:w-auto">
@@ -245,7 +361,6 @@ export default function AdminPanel() {
         </form>
       </div>
 
-      {/* STATS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-[#111] p-4 rounded-xl border border-gray-800 shadow">
           <p className="text-gray-400 text-sm">Total Leads</p>
@@ -253,58 +368,149 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* MOBILE VIEW */}
       <div className="grid gap-4 sm:hidden">
-        {filtered.map((row, i) => (
-          <div key={i} className="bg-[#111] p-4 rounded-xl border border-gray-800">
+        {filtered.map((row, i) => {
+          const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
 
-            <p className="font-semibold">{row.name}</p>
-            <p className="text-sm text-gray-400">{row.phone}</p>
-            <p className="text-sm">{row.service}</p>
+          return (
+            <div key={i} className="bg-[#111] p-4 rounded-xl border border-gray-800">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-gray-400">Lead #{row.rowIndex}</p>
 
-            {/* STATUS */}
-            <select
-              value={row.status || "Pending"}
-              onChange={(e) =>
-                updateField(row.rowIndex, "status", e.target.value)
-              }
-              className="mt-2 w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
-            >
-              <option>Pending</option>
-              <option>Contacted</option>
-              <option>Closed</option>
-            </select>
+                <div className="flex gap-2">
+                  {isEditing ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => saveRow(row)}
+                        disabled={savingRowIndex === row.rowIndex}
+                        className="px-3 py-1 rounded bg-blue-600 text-sm disabled:opacity-50"
+                      >
+                        {savingRowIndex === row.rowIndex ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEditing}
+                        className="px-3 py-1 rounded bg-gray-700 text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => startEditing(row)}
+                      className="px-3 py-1 rounded bg-[#1a1a1a] border border-gray-700 text-sm"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+              </div>
 
-            {/* NOTES */}
-            <input
-              defaultValue={row.notes || ""}
-              onBlur={(e) =>
-                updateField(row.rowIndex, "notes", e.target.value)
-              }
-              placeholder="Add notes..."
-              className="mt-2 w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
-            />
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Name</p>
+                  {renderInput(
+                    row,
+                    "name",
+                    "Name",
+                    isEditing,
+                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 font-semibold"
+                  )}
+                </div>
 
-            <button
-              onClick={() => openWhatsApp(row)}
-              className="mt-3 w-full bg-green-500 py-2 rounded-lg"
-            >
-              WhatsApp
-            </button>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Phone</p>
+                  {renderInput(
+                    row,
+                    "phone",
+                    "Phone",
+                    isEditing,
+                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 text-sm text-gray-200"
+                  )}
+                </div>
 
-            <button
-              onClick={() => deleteLead(row.rowIndex, row.name)}
-              disabled={deletingRowIndex === row.rowIndex}
-              className="mt-2 w-full bg-red-500 py-2 rounded-lg disabled:opacity-50"
-            >
-              {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
-            </button>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Service</p>
+                  {renderInput(
+                    row,
+                    "service",
+                    "Service",
+                    isEditing,
+                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 text-sm"
+                  )}
+                </div>
 
-          </div>
-        ))}
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Email</p>
+                  {renderInput(row, "email", "Email", isEditing)}
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Budget</p>
+                  {renderInput(row, "budget", "Budget", isEditing)}
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Message</p>
+                  {renderTextarea(
+                    row,
+                    "message",
+                    "Message",
+                    isEditing,
+                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <p className="text-xs text-gray-400 mb-1">Status</p>
+                {isEditing ? (
+                  <select
+                    value={draftRow?.status || "Pending"}
+                    onChange={(e) => handleDraftChange("status", e.target.value)}
+                    className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
+                  >
+                    <option>Pending</option>
+                    <option>Contacted</option>
+                    <option>Closed</option>
+                  </select>
+                ) : (
+                  <p className="text-sm text-white">{row.status || "Pending"}</p>
+                )}
+              </div>
+
+              <div className="mt-3">
+                <p className="text-xs text-gray-400 mb-1">Notes</p>
+                {renderInput(
+                  row,
+                  "notes",
+                  "Add notes...",
+                  isEditing,
+                  "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
+                )}
+              </div>
+
+              <button
+                onClick={() => openWhatsApp(row)}
+                className="mt-3 w-full bg-green-500 py-2 rounded-lg"
+              >
+                WhatsApp
+              </button>
+
+              <button
+                onClick={() => deleteLead(row.rowIndex, row.name)}
+                disabled={deletingRowIndex === row.rowIndex}
+                className="mt-2 w-full bg-red-500 py-2 rounded-lg disabled:opacity-50"
+              >
+                {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* DESKTOP TABLE */}
       <div className="hidden sm:block bg-[#111] border border-gray-800 rounded-xl overflow-auto">
         <table className="w-full text-sm">
           <thead className="bg-[#1a1a1a] text-gray-400">
@@ -312,6 +518,9 @@ export default function AdminPanel() {
               <th className="p-3 text-left">Name</th>
               <th className="p-3 text-left">Phone</th>
               <th className="p-3 text-left">Service</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Budget</th>
+              <th className="p-3 text-left">Message</th>
               <th className="p-3 text-left">Status</th>
               <th className="p-3 text-left">Notes</th>
               <th className="p-3 text-left">Action</th>
@@ -319,62 +528,141 @@ export default function AdminPanel() {
           </thead>
 
           <tbody>
-            {filtered.map((row, i) => (
-              <tr key={i} className="border-t border-gray-800 hover:bg-[#1a1a1a]">
+            {filtered.map((row, i) => {
+              const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
 
-                <td className="p-3">{row.name}</td>
-                <td className="p-3">{row.phone}</td>
-                <td className="p-3">{row.service}</td>
+              return (
+                <tr key={i} className="border-t border-gray-800 hover:bg-[#1a1a1a]">
+                  <td className="p-3 min-w-[180px]">
+                    {renderInput(
+                      row,
+                      "name",
+                      "Name",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[150px]">
+                    {renderInput(
+                      row,
+                      "phone",
+                      "Phone",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[160px]">
+                    {renderInput(
+                      row,
+                      "service",
+                      "Service",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[220px]">
+                    {renderInput(
+                      row,
+                      "email",
+                      "Email",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[140px]">
+                    {renderInput(
+                      row,
+                      "budget",
+                      "Budget",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[240px]">
+                    {renderTextarea(
+                      row,
+                      "message",
+                      "Message",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[120px]">
+                    {isEditing ? (
+                      <select
+                        value={draftRow?.status || "Pending"}
+                        onChange={(e) => handleDraftChange("status", e.target.value)}
+                        className="bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      >
+                        <option>Pending</option>
+                        <option>Contacted</option>
+                        <option>Closed</option>
+                      </select>
+                    ) : (
+                      <p>{row.status || "Pending"}</p>
+                    )}
+                  </td>
+                  <td className="p-3 min-w-[180px]">
+                    {renderInput(
+                      row,
+                      "notes",
+                      "Add notes...",
+                      isEditing,
+                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                    )}
+                  </td>
+                  <td className="p-3">
+                    <div className="flex gap-2">
+                      {isEditing ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => saveRow(row)}
+                            disabled={savingRowIndex === row.rowIndex}
+                            className="bg-blue-600 px-3 py-1 rounded disabled:opacity-50"
+                          >
+                            {savingRowIndex === row.rowIndex ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelEditing}
+                            className="bg-gray-700 px-3 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startEditing(row)}
+                          className="bg-[#1a1a1a] border border-gray-700 px-3 py-1 rounded"
+                        >
+                          Edit
+                        </button>
+                      )}
 
-                <td className="p-3">
-                  <select
-                    value={row.status || "Pending"}
-                    onChange={(e) =>
-                      updateField(row.rowIndex, "status", e.target.value)
-                    }
-                    className="bg-[#1a1a1a] border border-gray-700 p-1 rounded"
-                  >
-                    <option>Pending</option>
-                    <option>Contacted</option>
-                    <option>Closed</option>
-                  </select>
-                </td>
+                      <button
+                        onClick={() => openWhatsApp(row)}
+                        className="bg-green-500 px-3 py-1 rounded"
+                      >
+                        Chat
+                      </button>
 
-                <td className="p-3">
-                  <input
-                    defaultValue={row.notes || ""}
-                    onBlur={(e) =>
-                      updateField(row.rowIndex, "notes", e.target.value)
-                    }
-                    className="bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
-                  />
-                </td>
-
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openWhatsApp(row)}
-                      className="bg-green-500 px-3 py-1 rounded"
-                    >
-                      Chat
-                    </button>
-
-                    <button
-                      onClick={() => deleteLead(row.rowIndex, row.name)}
-                      disabled={deletingRowIndex === row.rowIndex}
-                      className="bg-red-500 px-3 py-1 rounded disabled:opacity-50"
-                    >
-                      {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
-                    </button>
-                  </div>
-                </td>
-
-              </tr>
-            ))}
+                      <button
+                        onClick={() => deleteLead(row.rowIndex, row.name)}
+                        disabled={deletingRowIndex === row.rowIndex}
+                        className="bg-red-500 px-3 py-1 rounded disabled:opacity-50"
+                      >
+                        {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
