@@ -76,6 +76,24 @@ app.post("/update", async (req, res) => {
   }
 });
 
+// 🗑️ DELETE LEAD
+app.post("/delete", async (req, res) => {
+  try {
+    await fetch(process.env.GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "delete",
+        rowIndex: Number(req.body.rowIndex),
+      }),
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
 // 🚀 START SERVER
 const PORT = 5000;
 

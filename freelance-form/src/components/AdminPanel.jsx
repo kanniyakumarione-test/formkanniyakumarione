@@ -3,16 +3,31 @@ import { useEffect, useState } from "react";
 export default function AdminPanel() {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
+  const [deletingRowIndex, setDeletingRowIndex] = useState(null);
+  const [newLead, setNewLead] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    budget: "",
+    message: "",
+    service: "",
+  });
+  const [isAddingLead, setIsAddingLead] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/leads?t=${Date.now()}`
+      );
+      const result = await res.json();
+      setData(result.data || []);
+    } catch {
+      setData([]);
+    }
+  };
 
   // 🔄 Auto fetch every 5s
   useEffect(() => {
-    const fetchData = () => {
-      fetch(`${import.meta.env.VITE_API_URL}/leads?t=${Date.now()}`)
-        .then((res) => res.json())
-        .then((res) => setData(res.data || []))
-        .catch(() => setData([]));
-    };
-
     fetchData();
     const interval = setInterval(fetchData, 5000);
 
@@ -34,6 +49,85 @@ export default function AdminPanel() {
       });
     } catch (err) {
       console.error("Update failed");
+    }
+  };
+
+  const deleteLead = async (rowIndex, name) => {
+    const confirmed = window.confirm(
+      `Delete ${name || "this lead"}? This cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingRowIndex(rowIndex);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rowIndex: Number(rowIndex),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+
+      setData((current) =>
+        current.filter((row) => Number(row.rowIndex) !== Number(rowIndex))
+      );
+      await fetchData();
+    } catch (err) {
+      console.error("Delete failed");
+      window.alert("Delete failed. Please try again.");
+    } finally {
+      setDeletingRowIndex(null);
+    }
+  };
+
+  const handleNewLeadChange = (e) => {
+    setNewLead((current) => ({
+      ...current,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const addLead = async (e) => {
+    e.preventDefault();
+    setIsAddingLead(true);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newLead),
+      });
+
+      if (!res.ok) {
+        throw new Error("Add lead failed");
+      }
+
+      setNewLead({
+        name: "",
+        phone: "",
+        email: "",
+        budget: "",
+        message: "",
+        service: "",
+      });
+      await fetchData();
+    } catch (err) {
+      console.error("Add lead failed");
+      window.alert("Could not add lead. Please try again.");
+    } finally {
+      setIsAddingLead(false);
     }
   };
 
@@ -77,6 +171,78 @@ export default function AdminPanel() {
             Logout
           </button>
         </div>
+      </div>
+
+      <div className="bg-[#111] border border-gray-800 rounded-xl p-4 sm:p-5 mb-6">
+        <h2 className="text-lg font-semibold">Add Lead</h2>
+        <p className="text-sm text-gray-400 mt-1 mb-4">
+          Create a lead directly from the admin page.
+        </p>
+
+        <form
+          onSubmit={addLead}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+        >
+          <input
+            name="name"
+            value={newLead.name}
+            onChange={handleNewLeadChange}
+            placeholder="Name"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+            required
+          />
+
+          <input
+            name="phone"
+            value={newLead.phone}
+            onChange={handleNewLeadChange}
+            placeholder="Phone"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+            required
+          />
+
+          <input
+            name="service"
+            value={newLead.service}
+            onChange={handleNewLeadChange}
+            placeholder="Service"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+            required
+          />
+
+          <input
+            name="email"
+            value={newLead.email}
+            onChange={handleNewLeadChange}
+            placeholder="Email"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+          />
+
+          <input
+            name="budget"
+            value={newLead.budget}
+            onChange={handleNewLeadChange}
+            placeholder="Budget"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
+          />
+
+          <button
+            type="submit"
+            disabled={isAddingLead}
+            className="bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2 font-medium disabled:opacity-50"
+          >
+            {isAddingLead ? "Adding..." : "Add Lead"}
+          </button>
+
+          <textarea
+            name="message"
+            value={newLead.message}
+            onChange={handleNewLeadChange}
+            placeholder="Notes / Message"
+            rows="3"
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 sm:col-span-2 lg:col-span-3"
+          />
+        </form>
       </div>
 
       {/* STATS */}
@@ -124,6 +290,14 @@ export default function AdminPanel() {
               className="mt-3 w-full bg-green-500 py-2 rounded-lg"
             >
               WhatsApp
+            </button>
+
+            <button
+              onClick={() => deleteLead(row.rowIndex, row.name)}
+              disabled={deletingRowIndex === row.rowIndex}
+              className="mt-2 w-full bg-red-500 py-2 rounded-lg disabled:opacity-50"
+            >
+              {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
             </button>
 
           </div>
@@ -177,12 +351,22 @@ export default function AdminPanel() {
                 </td>
 
                 <td className="p-3">
-                  <button
-                    onClick={() => openWhatsApp(row)}
-                    className="bg-green-500 px-3 py-1 rounded"
-                  >
-                    Chat
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openWhatsApp(row)}
+                      className="bg-green-500 px-3 py-1 rounded"
+                    >
+                      Chat
+                    </button>
+
+                    <button
+                      onClick={() => deleteLead(row.rowIndex, row.name)}
+                      disabled={deletingRowIndex === row.rowIndex}
+                      className="bg-red-500 px-3 py-1 rounded disabled:opacity-50"
+                    >
+                      {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </td>
 
               </tr>
