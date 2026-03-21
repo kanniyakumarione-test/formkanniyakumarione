@@ -9,6 +9,38 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+async function callAppsScript(payload) {
+  const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(`Apps Script HTTP ${response.status}: ${text}`);
+  }
+
+  let data = {};
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      throw new Error(`Apps Script returned invalid JSON: ${text}`);
+    }
+  }
+
+  if (data.success === false) {
+    throw new Error(data.error || "Apps Script reported failure");
+  }
+
+  return data;
+}
+
 // 🔐 ADMIN LOGIN
 app.post("/login", (req, res) => {
   const { password } = req.body;
@@ -23,15 +55,11 @@ app.post("/login", (req, res) => {
 // 📩 SUBMIT FORM (CREATE LEAD)
 app.post("/submit", async (req, res) => {
   try {
-    await fetch(process.env.GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify(req.body),
-    });
-
-    res.json({ success: true });
+    const data = await callAppsScript(req.body);
+    res.json({ success: true, data });
   } catch (err) {
     console.error("Submit error:", err);
-    res.status(500).json({ success: false });
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
@@ -64,33 +92,25 @@ app.get("/leads", async (req, res) => {
 // 🔄 UPDATE STATUS / NOTES
 app.post("/update", async (req, res) => {
   try {
-    await fetch(process.env.GOOGLE_SCRIPT_URL, {
-      method: "POST", // Apps Script uses doPost
-      body: JSON.stringify(req.body),
-    });
-
-    res.json({ success: true });
+    const data = await callAppsScript(req.body);
+    res.json({ success: true, data });
   } catch (err) {
     console.error("Update error:", err);
-    res.status(500).json({ success: false });
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // 🗑️ DELETE LEAD
 app.post("/delete", async (req, res) => {
   try {
-    await fetch(process.env.GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "delete",
-        rowIndex: Number(req.body.rowIndex),
-      }),
+    const data = await callAppsScript({
+      action: "delete",
+      rowIndex: Number(req.body.rowIndex),
     });
-
-    res.json({ success: true });
+    res.json({ success: true, data });
   } catch (err) {
     console.error("Delete error:", err);
-    res.status(500).json({ success: false });
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
