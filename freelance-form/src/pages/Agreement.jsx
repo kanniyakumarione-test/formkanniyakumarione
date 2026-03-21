@@ -77,7 +77,7 @@ export default function Agreement() {
 
     // 🔵 AGREEMENT TEXT
     const agreementText = `
-This Service Agreement is made between ${form.name} (hereinafter referred to as the Client) and KanniyakumariOne. By submitting this form, ${form.name} agrees to engage KanniyakumariOne for the requested service under the terms outlined below.
+This Service Agreement is made between ${form.name} and KanniyakumariOne. By submitting this form, ${form.name} agrees to engage KanniyakumariOne for the requested service under the terms outlined below.
 
 I agree to provide accurate and complete information regarding the project requirements. KanniyakumariOne will make every effort to deliver the requested service within a reasonable timeframe depending on the complexity and scope of the work.
 
