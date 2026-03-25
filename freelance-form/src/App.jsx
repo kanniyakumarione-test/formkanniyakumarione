@@ -3,24 +3,29 @@ import ServiceCards from "./components/ServiceCards";
 import ServiceForm from "./components/ServiceForm";
 import AdminPanel from "./components/AdminPanel";
 import AdminLoginModal from "./components/AdminLoginModal";
-import Agreement from "./pages/Agreement";
 import Quotation from "./pages/Quotation";
+import FreelancerDocuments, {
+  routeToType,
+} from "./pages/FreelancerDocuments";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [selectedService, setSelectedService] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const currentPath = window.location.pathname;
 
-  const isAdminRoute = window.location.pathname === "/admin";
+  const isAdminRoute = currentPath === "/admin";
 
-  if (window.location.pathname === "/agreement") {
-  return <Agreement />;
-}
+  if (routeToType[currentPath] || currentPath === "/documents") {
+    return (
+      <FreelancerDocuments initialType={routeToType[currentPath] || "agreement"} />
+    );
+  }
 
-if (window.location.pathname === "/quotation") {
-  return <Quotation />;
-}
+  if (currentPath === "/quotation") {
+    return <Quotation />;
+  }
 
   // 🔐 Persist login
   useEffect(() => {

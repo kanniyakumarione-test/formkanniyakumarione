@@ -10,8 +10,7 @@ export default function AdminPanel() {
   const [newLead, setNewLead] = useState({
     name: "",
     phone: "",
-    email: "",
-    location: "",
+    email: "",    location: "",
     budget: "",
     message: "",
     service: "",
@@ -397,6 +396,34 @@ export default function AdminPanel() {
         <div className="bg-[#111] p-4 rounded-xl border border-gray-800 shadow">
           <p className="text-gray-400 text-sm">Total Leads</p>
           <h2 className="text-xl font-semibold">{data.length}</h2>
+        </div>
+      </div>
+
+      <div className="bg-[#111] border border-gray-800 rounded-xl p-4 sm:p-5 mb-6">
+        <h2 className="text-lg font-semibold">Freelancer Documents</h2>
+        <p className="text-sm text-gray-400 mt-1 mb-4">
+          Open ready-to-generate client forms in a new tab.
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+          {[
+            { label: "Agreement", href: "/agreement" },
+            { label: "Welcome Letter", href: "/welcome-letter" },
+            { label: "Onboarding Doc", href: "/onboarding-doc" },
+            { label: "NDA", href: "/nda" },
+            { label: "Invoice", href: "/invoice" },
+            { label: "Offboarding Doc", href: "/offboarding-doc" },
+          ].map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              className="px-4 py-2 rounded-lg bg-[#1a1a1a] border border-gray-700 text-sm hover:border-blue-500 hover:text-blue-300 transition"
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
       </div>
 
