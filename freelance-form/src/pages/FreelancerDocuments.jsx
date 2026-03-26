@@ -141,6 +141,14 @@ const getDocumentType = (typeKey) =>
 const joinServices = (services) =>
   services.length > 0 ? services.join(", ") : "Not specified";
 
+const shouldShowClientSignature = (typeKey) => typeKey !== "welcomeLetter";
+
+const clientNameLabel = (typeKey) =>
+  typeKey === "welcomeLetter" ? "Client Name" : "Client / Business Name";
+
+const projectTitleLabel = (typeKey) =>
+  typeKey === "welcomeLetter" ? "Project / Business" : "Project / Engagement Title";
+
 const buildDocumentContent = (typeKey, form) => {
   const shared = {
     clientName: form.clientName || "Client",
@@ -168,18 +176,29 @@ const buildDocumentContent = (typeKey, form) => {
   switch (typeKey) {
     case "welcomeLetter":
       return {
-        introTitle: "Welcome Summary",
-        introPoints: [
-          `Welcome ${shared.clientName} to KanniyakumariOne.`,
-          `Project: ${shared.projectTitle}`,
-          `Start date: ${shared.onboardingDate}`,
+        greeting: `Dear ${shared.clientName},`,
+        opening: "Welcome to KanniyakumariOne!",
+        leadParagraph: `We are thrilled to have you as our new client. This letter confirms that you have engaged us to support ${shared.projectTitle} with professional digital services.`,
+        summaryTitle: "Project Summary",
+        summaryPoints: [
+          `Client Name: ${shared.clientName}`,
+          `Business: ${shared.projectTitle}`,
+          `Services Confirmed: ${shared.services.replaceAll(", ", " and ")}`,
+          `Start Date: ${shared.onboardingDate}`,
         ],
-        paragraphs: [
-          `This letter confirms that ${shared.clientName} has engaged KanniyakumariOne for ${shared.projectTitle}. We look forward to commencing this engagement and delivering the agreed services through a structured and collaborative process.`,
-          `The confirmed service scope for this engagement includes ${shared.services}. Communication, file sharing, approvals, and feedback will be managed through the channels agreed upon by both parties.`,
-          `The next stage of the process includes onboarding, confirmation of requirements, and schedule alignment. Any pending content, brand assets, access credentials, or approvals should be shared before active production begins.`,
-          `We appreciate the opportunity to work with ${shared.clientName} and look forward to a productive and professional collaboration.`,
+        visionParagraph:
+          "We look forward to working closely with you to create a strong online presence that helps attract more clients to your business.",
+        workflowTitle: "How We Will Work Together",
+        workflowParagraph:
+          "Communication, file sharing, feedback, and approvals will be handled through the channels we agreed upon. Please let us know if you prefer WhatsApp, email, or another platform.",
+        nextStepsTitle: "Next Steps",
+        nextSteps: [
+          "Onboarding call or requirement confirmation will be scheduled shortly.",
+          "Please share any pending brand assets, logos, photos, content, existing website access, or social media details at your earliest convenience.",
+          "We will align on the project schedule once we receive the required materials.",
         ],
+        closingParagraph:
+          "We truly appreciate the opportunity to partner with you and are committed to delivering high-quality results for your business. If you have any questions in the meantime, feel free to reach us directly.",
       };
     case "onboarding":
       return {
@@ -325,6 +344,10 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     const content = buildDocumentContent(selectedType, form);
     const dateLabel = new Date().toLocaleDateString();
     const isInvoice = selectedType === "invoice";
+    const isWelcomeLetter = selectedType === "welcomeLetter";
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const footerY = pageHeight - 5;
+    const welcomeFooterReserve = 58;
 
     doc.setGState(new doc.GState({ opacity: 0.07 }));
     doc.addImage(logo, "PNG", 45, 95, 120, 60);
@@ -343,19 +366,92 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text(activeDocument.pdfTitle, 105, 40, { align: "center" });
+    doc.text(
+      isWelcomeLetter ? "WELCOME LETTER" : activeDocument.pdfTitle,
+      105,
+      40,
+      { align: "center" }
+    );
     doc.line(20, 45, 190, 45);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text(`Client Name: ${form.clientName || "Not provided"}`, 20, 58);
-    doc.text(`Email: ${form.email || "Not provided"}`, 20, 66);
-    doc.text(`Phone: ${form.phone || "Not provided"}`, 20, 74);
-    doc.text(`Project: ${form.projectTitle || "Not provided"}`, 20, 82);
+    let y = 58;
 
-    let y = 94;
+    if (isWelcomeLetter) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(`Date: ${dateLabel}`, 20, y);
+      y += 10;
 
-    if (isInvoice) {
+      doc.setFont("helvetica", "bold");
+      doc.text(content.greeting, 20, y);
+      y += 8;
+      doc.text(content.opening, 20, y);
+      y += 8;
+
+      doc.setFont("helvetica", "normal");
+      const leadLines = doc.splitTextToSize(content.leadParagraph, 170);
+      doc.text(leadLines, 20, y);
+      y += leadLines.length * 5 + 6;
+
+      doc.setFont("helvetica", "bold");
+      doc.text(content.summaryTitle, 20, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      content.summaryPoints.forEach((point) => {
+        const lines = doc.splitTextToSize(point, 168);
+        doc.text(lines, 22, y);
+        y += lines.length * 5 + 1;
+      });
+
+      y += 4;
+      const visionLines = doc.splitTextToSize(content.visionParagraph, 170);
+      doc.text(visionLines, 20, y);
+      y += visionLines.length * 5 + 6;
+
+      doc.setFont("helvetica", "bold");
+      doc.text(content.workflowTitle, 20, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      const workflowLines = doc.splitTextToSize(content.workflowParagraph, 170);
+      doc.text(workflowLines, 20, y);
+      y += workflowLines.length * 5 + 6;
+
+      doc.setFont("helvetica", "bold");
+      doc.text(content.nextStepsTitle, 20, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      content.nextSteps.forEach((step) => {
+        const lines = doc.splitTextToSize(`- ${step}`, 168);
+        doc.text(lines, 22, y);
+        y += lines.length * 5 + 1;
+      });
+
+      const closingLines = doc.splitTextToSize(content.closingParagraph, 170);
+      y += 5;
+      doc.text(closingLines, 20, y);
+      y += closingLines.length * 5 + 8;
+      y = Math.min(y, pageHeight - welcomeFooterReserve);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Best regards,", 20, y);
+      y += 7;
+      doc.text(form.companyRepresentative || "Roshinth Sojan", 20, y);
+      y += 7;
+
+      doc.setFont("helvetica", "normal");
+      doc.text("KanniyakumariOne Freelance Digital Services", 20, y);
+    } else if (isInvoice) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text(`${clientNameLabel(selectedType)}: ${form.clientName || "Not provided"}`, 20, y);
+      doc.text(`Email: ${form.email || "Not provided"}`, 20, y + 8);
+      doc.text(`Phone: ${form.phone || "Not provided"}`, 20, y + 16);
+      doc.text(`${projectTitleLabel(selectedType)}: ${form.projectTitle || "Not provided"}`, 20, y + 24);
+      y += 36;
+
       doc.setFont("helvetica", "bold");
       doc.text("Billing Summary", 20, y);
       y += 10;
@@ -402,6 +498,14 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
         y += lines.length * 6 + 4;
       });
     } else {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text(`${clientNameLabel(selectedType)}: ${form.clientName || "Not provided"}`, 20, y);
+      doc.text(`Email: ${form.email || "Not provided"}`, 20, y + 8);
+      doc.text(`Phone: ${form.phone || "Not provided"}`, 20, y + 16);
+      doc.text(`${projectTitleLabel(selectedType)}: ${form.projectTitle || "Not provided"}`, 20, y + 24);
+      y += 36;
+
       doc.setFont("helvetica", "bold");
       doc.text(content.introTitle, 20, y);
       y += 8;
@@ -423,45 +527,56 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     }
 
     y += 6;
-    doc.text("Client Signature:", 20, y);
-    doc.line(20, y + 10, 80, y + 10);
-    doc.text(form.signature || form.clientName || "", 20, y + 8);
+    if (!isWelcomeLetter && shouldShowClientSignature(selectedType)) {
+      doc.text("Client Signature:", 20, y);
+      doc.line(20, y + 10, 80, y + 10);
+      doc.text(form.signature || form.clientName || "", 20, y + 8);
+    }
 
-    doc.text("For KanniyakumariOne:", 120, y);
-    doc.line(120, y + 10, 180, y + 10);
-    doc.text(form.companyRepresentative || "Authorized Signatory", 120, y + 8);
+    if (!isWelcomeLetter) {
+      doc.text("For KanniyakumariOne:", 120, y);
+      doc.line(120, y + 10, 180, y + 10);
+      doc.text(form.companyRepresentative || "Authorized Signatory", 120, y + 8);
+    }
 
     y += 24;
-    doc.text("Date:", 20, y);
-    doc.text(dateLabel, 34, y);
+    if (!isWelcomeLetter) {
+      doc.text("Date:", 20, y);
+      doc.text(dateLabel, 34, y);
+    }
 
-    const stampX = 110;
-    const stampY = Math.min(y - 38, 230);
-    doc.setDrawColor(40, 70, 160);
-    doc.setLineWidth(1.5);
-    doc.rect(stampX, stampY, 80, 40);
-    doc.setTextColor(40, 70, 160);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("KANNIYAKUMARIONE", stampX + 40, stampY + 10, {
-      align: "center",
-    });
-    doc.setFontSize(9);
-    doc.text(activeDocument.pdfTitle, stampX + 40, stampY + 18, {
-      align: "center",
-    });
-    doc.text(dateLabel, stampX + 40, stampY + 26, { align: "center" });
-    doc.text("SIGN:", stampX + 8, stampY + 34);
-    doc.line(stampX + 25, stampY + 34, stampX + 70, stampY + 34);
-    doc.text(form.companyRepresentative || "ROSHINTH SOJAN", stampX + 25, stampY + 32);
-    doc.setTextColor(0);
+    {
+      const stampX = 110;
+      const stampY = isWelcomeLetter ? pageHeight - 50 : Math.min(y - 38, 230);
+      doc.setDrawColor(40, 70, 160);
+      doc.setLineWidth(1.5);
+      doc.rect(stampX, stampY, 80, 40);
+      doc.setTextColor(40, 70, 160);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text("KANNIYAKUMARIONE", stampX + 40, stampY + 10, {
+        align: "center",
+      });
+      doc.setFontSize(9);
+      doc.text(
+        isWelcomeLetter ? "AUTHORIZED SIGNATORY" : activeDocument.pdfTitle,
+        stampX + 40,
+        stampY + 18,
+        { align: "center" }
+      );
+      doc.text(dateLabel, stampX + 40, stampY + 26, { align: "center" });
+      doc.text("SIGN:", stampX + 8, stampY + 34);
+      doc.line(stampX + 25, stampY + 34, stampX + 70, stampY + 34);
+      doc.text(form.companyRepresentative || "ROSHINTH SOJAN", stampX + 25, stampY + 32);
+      doc.setTextColor(0);
+    }
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.text(
       "This document is digitally generated by KanniyakumariOne and is valid without physical signature.",
       105,
-      285,
+      footerY,
       { align: "center" }
     );
 
@@ -487,6 +602,11 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
 
     if (selectedType === "invoice" && !form.amount.trim()) {
       toast.error("Enter the invoice amount");
+      return;
+    }
+
+    if (selectedType === "agreement" && !form.signature.trim()) {
+      toast.error("Enter the client signature");
       return;
     }
 
@@ -560,21 +680,37 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <input
-                  name="clientName"
-                  value={form.clientName}
-                  onChange={handleChange}
-                  placeholder="Client name"
-                  className="input"
-                  required
-                />
-                <input
-                  name="projectTitle"
-                  value={form.projectTitle}
-                  onChange={handleChange}
-                  placeholder="Project / engagement title"
-                  className="input"
-                />
+                <div>
+                  <label className="mb-2 block text-sm text-gray-400">
+                    {clientNameLabel(selectedType)}
+                  </label>
+                  <input
+                    name="clientName"
+                    value={form.clientName}
+                    onChange={handleChange}
+                    placeholder={
+                      selectedType === "welcomeLetter" ? "Enter client name" : "Enter client or business name"
+                    }
+                    className="input"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm text-gray-400">
+                    {projectTitleLabel(selectedType)}
+                  </label>
+                  <input
+                    name="projectTitle"
+                    value={form.projectTitle}
+                    onChange={handleChange}
+                    placeholder={
+                      selectedType === "welcomeLetter"
+                        ? "Business or studio name"
+                        : "Project / engagement title"
+                    }
+                    className="input"
+                  />
+                </div>
                 <input
                   name="email"
                   value={form.email}
@@ -733,14 +869,27 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                 className="input"
               />
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <input
-                  name="signature"
-                  value={form.signature}
-                  onChange={handleChange}
-                  placeholder="Client signature name"
-                  className="input"
-                />
+              <div
+                className={`grid gap-4 ${
+                  shouldShowClientSignature(selectedType)
+                    ? "sm:grid-cols-2"
+                    : "sm:grid-cols-1"
+                }`}
+              >
+                {shouldShowClientSignature(selectedType) && (
+                  <input
+                    name="signature"
+                    value={form.signature}
+                    onChange={handleChange}
+                    placeholder={
+                      selectedType === "agreement"
+                        ? "Client signature name"
+                        : "Client signature name (optional)"
+                    }
+                    className="input"
+                    required={selectedType === "agreement"}
+                  />
+                )}
                 <input
                   name="companyRepresentative"
                   value={form.companyRepresentative}
