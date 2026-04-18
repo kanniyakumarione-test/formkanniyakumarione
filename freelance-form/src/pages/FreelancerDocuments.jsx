@@ -110,6 +110,24 @@ const documentTypes = [
       "By generating this invoice, you confirm that the billing details are complete and ready to be shared with the client.",
   },
   {
+    key: "paymentReceipt",
+    route: "/payment-receipt",
+    label: "Payment Receipt",
+    pdfTitle: "PAYMENT RECEIPT",
+    description: "Generate a receipt PDF confirming money received from a client.",
+    instructionsTitle: "Receipt Notes",
+    instructionsLead:
+      "Use this document to confirm a payment already received from the client for a project or service.",
+    instructionPoints: [
+      "Record the total project cost, the amount received, and the remaining balance if any.",
+      "Include the payment date, receipt number, and payment method for clear bookkeeping.",
+      "Use the notes section for transaction references, installment remarks, or acknowledgment details.",
+      "Share this receipt after each advance, milestone, or final payment received.",
+    ],
+    acknowledgement:
+      "By generating this payment receipt, you confirm that the recorded payment details are accurate.",
+  },
+  {
     key: "offboarding",
     route: "/offboarding-doc",
     label: "Offboarding Doc",
@@ -141,13 +159,29 @@ const getDocumentType = (typeKey) =>
 const joinServices = (services) =>
   services.length > 0 ? services.join(", ") : "Not specified";
 
+const parseAmount = (value) => {
+  const numeric = Number.parseFloat(String(value || "").replace(/,/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+};
+
+const formatMoney = (currency, value) => {
+  const normalized = String(value || "").trim();
+  return `${currency || "INR"} ${normalized || "0"}`;
+};
+
 const shouldShowClientSignature = (typeKey) => typeKey !== "welcomeLetter";
 
 const clientNameLabel = (typeKey) =>
-  typeKey === "welcomeLetter" ? "Client Name" : "Client / Business Name";
+  ["welcomeLetter", "onboarding", "paymentReceipt"].includes(typeKey)
+    ? "Client Name"
+    : "Client / Business Name";
 
 const projectTitleLabel = (typeKey) =>
-  typeKey === "welcomeLetter" ? "Project / Business" : "Project / Engagement Title";
+  typeKey === "welcomeLetter"
+    ? "Project / Business"
+    : ["onboarding", "paymentReceipt"].includes(typeKey)
+      ? "Project Name"
+      : "Project / Engagement Title";
 
 const buildDocumentContent = (typeKey, form) => {
   const shared = {
@@ -162,8 +196,13 @@ const buildDocumentContent = (typeKey, form) => {
     endDate: form.endDate || "Mutually agreed completion date",
     dueDate: form.dueDate || today,
     amount: form.amount || "0",
+    totalAmount: form.totalAmount || form.amount || "0",
+    receivedAmount: form.receivedAmount || "0",
     currency: form.currency || "INR",
     invoiceNumber: form.invoiceNumber || "INV-001",
+    receiptNumber: form.receiptNumber || "REC-001",
+    paymentDate: form.paymentDate || today,
+    paymentMode: form.paymentMode || "Online Transfer",
     deliverables: form.deliverables || "Final files, credentials, and approved deliverables",
     notes: form.notes || "No additional notes provided.",
     roleTitle: form.roleTitle || "Client Partner",
@@ -245,6 +284,27 @@ const buildDocumentContent = (typeKey, form) => {
           `Payment instructions or remarks: ${shared.notes}`,
         ],
       };
+    case "paymentReceipt": {
+      const balanceAmount = Math.max(
+        parseAmount(shared.totalAmount) - parseAmount(shared.receivedAmount),
+        0
+      );
+
+      return {
+        introTitle: "Receipt Summary",
+        introPoints: [
+          `Receipt No: ${shared.receiptNumber}`,
+          `Payment date: ${shared.paymentDate}`,
+          `Payment mode: ${shared.paymentMode}`,
+        ],
+        paragraphs: [
+          `This payment receipt confirms that KanniyakumariOne has received ${formatMoney(shared.currency, shared.receivedAmount)} from ${shared.clientName} for ${shared.projectTitle}.`,
+          `The total approved project value is ${formatMoney(shared.currency, shared.totalAmount)}. After this payment, the remaining balance is ${formatMoney(shared.currency, balanceAmount)}.`,
+          `The receipt applies to the following services or scope: ${shared.services}.`,
+          `Payment notes or references: ${shared.notes}`,
+        ],
+      };
+    }
     case "offboarding":
       return {
         introTitle: "Offboarding Summary",
@@ -291,8 +351,13 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     projectTitle: "",
     services: [],
     amount: "",
+    totalAmount: "",
+    receivedAmount: "",
     currency: "INR",
     invoiceNumber: "",
+    receiptNumber: "",
+    paymentDate: today,
+    paymentMode: "",
     issueDate: today,
     dueDate: "",
     startDate: today,
@@ -344,6 +409,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     const content = buildDocumentContent(selectedType, form);
     const dateLabel = new Date().toLocaleDateString();
     const isInvoice = selectedType === "invoice";
+    const isPaymentReceipt = selectedType === "paymentReceipt";
     const isWelcomeLetter = selectedType === "welcomeLetter";
     const pageHeight = doc.internal.pageSize.getHeight();
     const footerY = pageHeight - 5;
@@ -497,6 +563,74 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
         doc.text(lines, 20, y);
         y += lines.length * 6 + 4;
       });
+    } else if (isPaymentReceipt) {
+      const totalAmount = parseAmount(form.totalAmount);
+      const receivedAmount = parseAmount(form.receivedAmount);
+      const balanceAmount = Math.max(totalAmount - receivedAmount, 0);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text(`${clientNameLabel(selectedType)}: ${form.clientName || "Not provided"}`, 20, y);
+      doc.text(`Email: ${form.email || "Not provided"}`, 20, y + 8);
+      doc.text(`Phone: ${form.phone || "Not provided"}`, 20, y + 16);
+      doc.text(`${projectTitleLabel(selectedType)}: ${form.projectTitle || "Not provided"}`, 20, y + 24);
+      y += 36;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Payment Details", 20, y);
+      y += 10;
+
+      doc.setFont("helvetica", "normal");
+      doc.text(`Receipt Number: ${form.receiptNumber || "REC-001"}`, 20, y);
+      doc.text(`Payment Date: ${form.paymentDate || today}`, 120, y);
+      y += 8;
+      doc.text(`Payment Mode: ${form.paymentMode || "Not provided"}`, 20, y);
+      doc.text(`Currency: ${form.currency || "INR"}`, 120, y);
+      y += 12;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Description", 20, y);
+      doc.text("Amount", 190, y, { align: "right" });
+      y += 4;
+      doc.line(20, y, 190, y);
+      y += 10;
+
+      doc.setFont("helvetica", "normal");
+      const receiptLines = doc.splitTextToSize(
+        `${form.projectTitle || "Freelance services"} - Payment received toward ${joinServices(form.services)}`,
+        125
+      );
+      doc.text(receiptLines, 20, y);
+      doc.text(formatMoney(form.currency, form.receivedAmount), 190, y, {
+        align: "right",
+      });
+      y += Math.max(receiptLines.length * 6, 10) + 6;
+
+      doc.line(20, y, 190, y);
+      y += 10;
+      doc.setFont("helvetica", "bold");
+      doc.text("Total Project Cost", 20, y);
+      doc.text(formatMoney(form.currency, form.totalAmount), 190, y, {
+        align: "right",
+      });
+      y += 8;
+      doc.text("Amount Received", 20, y);
+      doc.text(formatMoney(form.currency, form.receivedAmount), 190, y, {
+        align: "right",
+      });
+      y += 8;
+      doc.text("Remaining Balance", 20, y);
+      doc.text(formatMoney(form.currency, balanceAmount), 190, y, {
+        align: "right",
+      });
+      y += 14;
+
+      doc.setFont("helvetica", "normal");
+      content.paragraphs.forEach((paragraph) => {
+        const lines = doc.splitTextToSize(paragraph, 170);
+        doc.text(lines, 20, y);
+        y += lines.length * 6 + 4;
+      });
     } else {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
@@ -605,6 +739,11 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
       return;
     }
 
+    if (selectedType === "paymentReceipt" && !form.receivedAmount.trim()) {
+      toast.error("Enter the received amount");
+      return;
+    }
+
     if (selectedType === "agreement" && !form.signature.trim()) {
       toast.error("Enter the client signature");
       return;
@@ -689,7 +828,9 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     value={form.clientName}
                     onChange={handleChange}
                     placeholder={
-                      selectedType === "welcomeLetter" ? "Enter client name" : "Enter client or business name"
+                      ["welcomeLetter", "onboarding", "paymentReceipt"].includes(selectedType)
+                        ? "Enter client name"
+                        : "Enter client or business name"
                     }
                     className="input"
                     required
@@ -706,6 +847,8 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     placeholder={
                       selectedType === "welcomeLetter"
                         ? "Business or studio name"
+                        : ["onboarding", "paymentReceipt"].includes(selectedType)
+                          ? "Project name"
                         : "Project / engagement title"
                     }
                     className="input"
@@ -738,7 +881,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                 />
               )}
 
-              {["agreement", "welcomeLetter", "onboarding", "invoice"].includes(selectedType) && (
+              {["agreement", "welcomeLetter", "onboarding", "invoice", "paymentReceipt"].includes(selectedType) && (
                 <div>
                   <p className="mb-2 text-sm text-gray-400">Select services</p>
                   <div className="flex flex-wrap gap-2">
@@ -813,6 +956,53 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     placeholder="Project amount"
                     className="input"
                   />
+                )}
+
+                {["paymentReceipt"].includes(selectedType) && (
+                  <>
+                    <input
+                      name="totalAmount"
+                      value={form.totalAmount}
+                      onChange={handleChange}
+                      placeholder="Total project cost"
+                      className="input"
+                    />
+                    <input
+                      name="receivedAmount"
+                      value={form.receivedAmount}
+                      onChange={handleChange}
+                      placeholder="Amount received"
+                      className="input"
+                    />
+                    <input
+                      name="receiptNumber"
+                      value={form.receiptNumber}
+                      onChange={handleChange}
+                      placeholder="Receipt number"
+                      className="input"
+                    />
+                    <input
+                      name="paymentMode"
+                      value={form.paymentMode}
+                      onChange={handleChange}
+                      placeholder="Payment mode"
+                      className="input"
+                    />
+                    <input
+                      name="paymentDate"
+                      type="date"
+                      value={form.paymentDate}
+                      onChange={handleChange}
+                      className="input"
+                    />
+                    <input
+                      name="currency"
+                      value={form.currency}
+                      onChange={handleChange}
+                      placeholder="Currency"
+                      className="input"
+                    />
+                  </>
                 )}
 
                 {["invoice"].includes(selectedType) && (

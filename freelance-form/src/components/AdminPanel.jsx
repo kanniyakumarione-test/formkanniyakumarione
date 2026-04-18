@@ -412,6 +412,7 @@ export default function AdminPanel() {
             { label: "Onboarding Doc", href: "/onboarding-doc" },
             { label: "NDA", href: "/nda" },
             { label: "Invoice", href: "/invoice" },
+            { label: "Payment Receipt", href: "/payment-receipt" },
             { label: "Offboarding Doc", href: "/offboarding-doc" },
           ].map((item) => (
             <a

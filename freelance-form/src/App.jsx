@@ -27,7 +27,7 @@ function App() {
     return <Quotation />;
   }
 
-  // 🔐 Persist login
+  // Persist login
   useEffect(() => {
     const admin = localStorage.getItem("admin");
     if (admin === "true") {
@@ -35,7 +35,7 @@ function App() {
     }
   }, []);
 
-  // 🔐 Handle login
+  // Handle login
   const handleLogin = async (password) => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
@@ -49,13 +49,13 @@ function App() {
       const data = await res.json();
 
       if (data.success) {
-        localStorage.setItem("admin", "true"); // ✅ save login
+        localStorage.setItem("admin", "true");
         setIsAdmin(true);
       } else {
-        toast.error("Wrong password ❌");
+        toast.error("Wrong password");
       }
     } catch (err) {
-      toast.error("Server error");
+      toast.error("Login failed. Please try again.");
     }
   };
 
