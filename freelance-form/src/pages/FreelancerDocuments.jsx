@@ -172,14 +172,14 @@ const formatMoney = (currency, value) => {
 const shouldShowClientSignature = (typeKey) => typeKey !== "welcomeLetter";
 
 const clientNameLabel = (typeKey) =>
-  ["welcomeLetter", "onboarding", "paymentReceipt"].includes(typeKey)
+  ["agreement", "welcomeLetter", "onboarding", "paymentReceipt"].includes(typeKey)
     ? "Client Name"
     : "Client / Business Name";
 
 const projectTitleLabel = (typeKey) =>
   typeKey === "welcomeLetter"
     ? "Project / Business"
-    : ["onboarding", "paymentReceipt"].includes(typeKey)
+    : ["agreement", "onboarding", "paymentReceipt"].includes(typeKey)
       ? "Project Name"
       : "Project / Engagement Title";
 
@@ -828,7 +828,9 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     value={form.clientName}
                     onChange={handleChange}
                     placeholder={
-                      ["welcomeLetter", "onboarding", "paymentReceipt"].includes(selectedType)
+                      ["agreement", "welcomeLetter", "onboarding", "paymentReceipt"].includes(
+                        selectedType
+                      )
                         ? "Enter client name"
                         : "Enter client or business name"
                     }
@@ -847,7 +849,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     placeholder={
                       selectedType === "welcomeLetter"
                         ? "Business or studio name"
-                        : ["onboarding", "paymentReceipt"].includes(selectedType)
+                        : ["agreement", "onboarding", "paymentReceipt"].includes(selectedType)
                           ? "Project name"
                         : "Project / engagement title"
                     }
