@@ -179,8 +179,10 @@ const clientNameLabel = (typeKey) =>
 const projectTitleLabel = (typeKey) =>
   typeKey === "welcomeLetter"
     ? "Project / Business"
-    : ["agreement", "onboarding", "paymentReceipt"].includes(typeKey)
+    : ["onboarding", "paymentReceipt"].includes(typeKey)
       ? "Project Name"
+      : typeKey === "agreement"
+        ? "Business Name"
       : "Project / Engagement Title";
 
 const buildDocumentContent = (typeKey, form) => {
@@ -849,8 +851,10 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     placeholder={
                       selectedType === "welcomeLetter"
                         ? "Business or studio name"
-                        : ["agreement", "onboarding", "paymentReceipt"].includes(selectedType)
+                        : ["onboarding", "paymentReceipt"].includes(selectedType)
                           ? "Project name"
+                          : selectedType === "agreement"
+                            ? "Business name"
                         : "Project / engagement title"
                     }
                     className="input"
