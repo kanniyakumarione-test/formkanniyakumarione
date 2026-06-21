@@ -141,6 +141,38 @@ export default function AdminPanel() {
       d.location?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const exportToCSV = () => {
+    if (!filtered || filtered.length === 0) {
+      window.alert("No leads data to export.");
+      return;
+    }
+
+    const headers = ["Row Index", "Name", "Phone", "Email", "Service", "Location", "Budget", "Status", "Notes", "Message"];
+    const rows = filtered.map((row) => [
+      row.rowIndex || "",
+      `"${(row.name || "").replace(/"/g, '""')}"`,
+      `"${(row.phone || "").replace(/"/g, '""')}"`,
+      `"${(row.email || "").replace(/"/g, '""')}"`,
+      `"${(row.service || "").replace(/"/g, '""')}"`,
+      `"${(row.location || "").replace(/"/g, '""')}"`,
+      `"${(row.budget || "").replace(/"/g, '""')}"`,
+      `"${(row.status || "").replace(/"/g, '""')}"`,
+      `"${(row.notes || "").replace(/"/g, '""')}"`,
+      `"${(row.message || "").replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `leads_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const openWhatsAppByPhone = (value) => {
     const digits = String(value || "").replace(/\D/g, "");
 
@@ -310,6 +342,19 @@ export default function AdminPanel() {
                 className="pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-sm w-full outline-none focus:border-indigo-500/50 transition duration-200"
               />
             </div>
+
+            <button
+              onClick={exportToCSV}
+              className="
+                px-5 py-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 
+                text-indigo-300 font-semibold text-sm transition duration-200 flex items-center justify-center gap-2 w-full sm:w-auto
+              "
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Export CSV</span>
+            </button>
 
             <button
               onClick={() => {

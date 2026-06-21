@@ -8,7 +8,7 @@ import RequestTracker from "./pages/RequestTracker";
 import FreelancerDocuments, {
   routeToType,
 } from "./pages/FreelancerDocuments";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -66,7 +66,12 @@ function App() {
 
   return (
     <>
-      <ToastContainer theme="dark" />
+      <ToastContainer
+        theme="dark"
+        transition={Slide}
+        limit={3}
+        autoClose={2500}
+      />
       {isAdminRoute ? (
         isAdmin ? (
           <AdminPanel />
