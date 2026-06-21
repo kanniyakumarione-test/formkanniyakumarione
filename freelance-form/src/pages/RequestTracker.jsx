@@ -228,7 +228,7 @@ export default function RequestTracker() {
                                     : "bg-[#09090b] border-white/[0.08] text-slate-500"
                                 }
                               `}>
-                                {isActive && !isCurrent && sIdx + 1 < currentStep ? (
+                                {isActive && (sIdx + 1 < currentStep || currentStep === 4) ? (
                                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                   </svg>

@@ -233,6 +233,9 @@ export default function AdminPanel() {
     if (s === "closed") {
       return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
     }
+    if (s === "in progress" || s === "in_progress") {
+      return "bg-sky-500/10 text-sky-400 border-sky-500/20";
+    }
     if (s === "contacted") {
       return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
     }
@@ -321,7 +324,7 @@ export default function AdminPanel() {
         </div>
 
         {/* STATS COUNT */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Leads</p>
             <h2 className="text-3xl font-extrabold font-outfit text-white mt-1.5">{data.length}</h2>
@@ -336,6 +339,12 @@ export default function AdminPanel() {
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Contacted</p>
             <h2 className="text-3xl font-extrabold font-outfit text-indigo-400 mt-1.5">
               {data.filter(d => d.status?.toLowerCase() === "contacted").length}
+            </h2>
+          </div>
+          <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">In Progress</p>
+            <h2 className="text-3xl font-extrabold font-outfit text-sky-400 mt-1.5">
+              {data.filter(d => d.status?.toLowerCase() === "in progress" || d.status?.toLowerCase() === "in_progress").length}
             </h2>
           </div>
           <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
@@ -580,6 +589,7 @@ export default function AdminPanel() {
                       >
                         <option>Pending</option>
                         <option>Contacted</option>
+                        <option>In Progress</option>
                         <option>Closed</option>
                       </select>
                     ) : (
@@ -720,6 +730,7 @@ export default function AdminPanel() {
                           >
                             <option>Pending</option>
                             <option>Contacted</option>
+                            <option>In Progress</option>
                             <option>Closed</option>
                           </select>
                         ) : (
