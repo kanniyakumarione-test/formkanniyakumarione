@@ -89,6 +89,51 @@ app.get("/leads", async (req, res) => {
   }
 });
 
+// 🔍 PUBLIC LEAD TRACKING (BY PHONE)
+app.get("/track", async (req, res) => {
+  const { phone } = req.query;
+  if (!phone) {
+    return res.status(400).json({ success: false, error: "Phone number required" });
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.GOOGLE_SCRIPT_URL}?t=${Date.now()}`
+    );
+
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("❌ Invalid JSON from Apps Script:", text);
+      return res.json({ success: true, data: [] });
+    }
+
+    const leads = data.data || [];
+    const normalizedQuery = phone.replace(/\D/g, "");
+
+    const results = leads
+      .filter((lead) => {
+        const leadPhone = String(lead.phone || "").replace(/\D/g, "");
+        if (!leadPhone || !normalizedQuery) return false;
+        return leadPhone.slice(-10) === normalizedQuery.slice(-10);
+      })
+      .map((lead) => ({
+        rowIndex: lead.rowIndex,
+        name: lead.name,
+        service: lead.service,
+        status: lead.status || "Pending",
+        notes: lead.notes || "",
+      }));
+
+    res.json({ success: true, data: results });
+  } catch (err) {
+    console.error("❌ Tracking error:", err);
+    res.status(500).json({ success: false, error: "Failed to query status" });
+  }
+});
+
 // 🔄 UPDATE STATUS / NOTES
 app.post("/update", async (req, res) => {
   try {

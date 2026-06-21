@@ -182,48 +182,102 @@ By signing this agreement, I confirm that I have read, understood, and agreed to
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-10">
-      <div className="max-w-2xl mx-auto">
+    <div className="relative min-h-screen bg-[#030303] text-[#f8fafc] px-6 py-16 sm:py-24 overflow-hidden font-sans">
+      {/* 🌌 Background ambient gradient blobs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[140px] pointer-events-none translate-y-1/2"></div>
 
-        <h1 className="text-3xl mb-6 text-center">Agreement</h1>
+      <div className="relative z-10 max-w-3xl mx-auto animate-fade-in">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <span className="px-3 py-1 text-xs font-semibold tracking-wider uppercase text-blue-400 bg-blue-400/10 rounded-full border border-blue-400/20">
+            Legal & Terms
+          </span>
+          <h1 className="text-4xl font-extrabold font-outfit text-white mt-4">
+            Service Agreement
+          </h1>
+          <p className="text-slate-400 mt-2 text-sm">
+            Generate and authorize your KanniyakumariOne service engagement.
+          </p>
+        </div>
 
-        {/* 📜 READ AGREEMENT FIRST */}
-        <div className="bg-[#111] p-6 rounded-xl border border-gray-800 mb-8 text-sm text-gray-300 leading-relaxed shadow-lg">
-          <h3 className="text-white font-semibold mb-3 text-lg">Terms & Conditions</h3>
-          <p className="mb-4">
+        {/* 📜 TERMS & CONDITIONS BOX */}
+        <div className="
+          bg-white/[0.01] border border-white/[0.05] p-8 rounded-3xl mb-10 text-sm text-slate-300 leading-relaxed shadow-xl
+          backdrop-blur-md relative overflow-hidden
+        ">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl"></div>
+          
+          <h3 className="text-white font-bold font-outfit mb-4 text-lg flex items-center gap-2">
+            <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Agreement Terms & Conditions
+          </h3>
+          
+          <p className="mb-4 text-slate-400">
             This Service Agreement is made between <span className="text-blue-400 font-bold">{form.name || "___(Client Name)___"}</span> and KanniyakumariOne.
             By submitting this form, the Client agrees to engage KanniyakumariOne under the terms below:
           </p>
-          <ul className="list-disc pl-5 space-y-2 mb-4 text-gray-400">
-            <li>
-              I agree to provide accurate and complete information regarding the project requirements.
-              KanniyakumariOne will make every effort to deliver the requested service within a reasonable timeframe.
+          
+          <ul className="space-y-3.5 mb-6 text-slate-400">
+            <li className="flex items-start gap-3">
+              <span className="mt-1 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span>I agree to provide accurate and complete information regarding the project requirements. KanniyakumariOne will make every effort to deliver the requested service within a reasonable timeframe.</span>
             </li>
-            <li>
-              I understand that payment must be made either partially or in full before the final delivery.
-              Any additional features requested after the initial agreement may result in additional charges.
+            <li className="flex items-start gap-3">
+              <span className="mt-1 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span>I understand that payment must be made either partially or in full before final delivery. Any additional features requested after this agreement may result in additional charges.</span>
             </li>
-            <li>
-              KanniyakumariOne provides limited revisions based on the type of service selected.
-              Once the project work has commenced, no refunds will be issued under any circumstances.
+            <li className="flex items-start gap-3">
+              <span className="mt-1 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span>KanniyakumariOne provides limited revisions based on the selected service. Once project work has commenced, no refunds will be issued under any circumstances.</span>
             </li>
-            <li>
-              I acknowledge that delays caused due to lack of communication, delayed content submission,
-              or third-party services are not the responsibility of KanniyakumariOne.
+            <li className="flex items-start gap-3">
+              <span className="mt-1 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span>I acknowledge that delays caused due to lack of communication, delayed content submission, or third-party services are not the responsibility of KanniyakumariOne.</span>
             </li>
           </ul>
-          <p className="text-xs text-gray-500 italic">By generating this agreement, you acknowledge these terms.</p>
+          
+          <p className="text-xs text-slate-500 italic border-t border-white/[0.05] pt-4">
+            * By generating this agreement, you acknowledge and accept all terms listed above.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          <input name="name" placeholder="Full Name" onChange={handleChange} className="input" required />
-          <input name="phone" placeholder="Phone Number" onChange={handleChange} className="input" required />
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white/[0.01] border border-white/[0.05] p-8 rounded-3xl backdrop-blur-md">
+          
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 ml-1">Full Name</label>
+              <input 
+                name="name" 
+                placeholder="Client name" 
+                value={form.name}
+                onChange={handleChange} 
+                className="input-ultra" 
+                required 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 ml-1">Phone Number</label>
+              <input 
+                name="phone" 
+                placeholder="Contact number" 
+                value={form.phone}
+                onChange={handleChange} 
+                className="input-ultra" 
+                required 
+              />
+            </div>
+          </div>
 
           {/* MULTI SELECT */}
-          <div>
-            <p className="text-sm text-gray-400 mb-2">Select Services</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-3">
+            <label className="text-xs font-semibold text-slate-400 ml-1 block">Select Services Under Engagement</label>
+            <div className="flex flex-wrap gap-2.5">
               {servicesList.map((s, i) => {
                 const active = form.services.includes(s);
                 return (
@@ -231,10 +285,10 @@ By signing this agreement, I confirm that I have read, understood, and agreed to
                     type="button"
                     key={i}
                     onClick={() => toggleService(s)}
-                    className={`px-3 py-2 rounded-lg text-sm border ${
+                    className={`px-4 py-2.5 rounded-xl text-xs font-medium border transition duration-200 ${
                       active
-                        ? "bg-blue-500 border-blue-500"
-                        : "bg-[#111] border-gray-700"
+                        ? "bg-blue-600/10 border-blue-500 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                        : "bg-white/[0.01] border-white/[0.05] text-slate-400 hover:border-slate-700 hover:text-white"
                     }`}
                   >
                     {s}
@@ -244,43 +298,62 @@ By signing this agreement, I confirm that I have read, understood, and agreed to
             </div>
           </div>
 
-          <input
-            name="signature"
-            placeholder="Type your name as signature"
-            onChange={handleChange}
-            className="input"
-            required
-          />
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-400 ml-1">Signature Authorization</label>
+            <input
+              name="signature"
+              placeholder="Type your full name as digital signature"
+              value={form.signature}
+              onChange={handleChange}
+              className="input-ultra"
+              required
+            />
+            <p className="text-[11px] text-slate-500 ml-1">
+              Typing your name acts as an electronic signature under applicable IT laws.
+            </p>
+          </div>
 
-          <button className="btn">Generate Agreement</button>
+          <button className="btn w-full mt-4">
+            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Generate Agreement PDF
+          </button>
 
         </form>
       </div>
 
-      {/* PREVIEW */}
+      {/* PREVIEW MODAL */}
       {pdfUrl && (
-        <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
-          <div className="bg-[#111] w-full max-w-4xl h-[90vh] flex flex-col rounded-xl">
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#09090b] border border-white/[0.08] w-full max-w-4xl h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
 
-            <div className="flex justify-between p-3 border-b border-gray-700">
-              <h2>Preview</h2>
-              <button onClick={() => setPdfUrl(null)}>✕</button>
+            <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.08]">
+              <h2 className="text-lg font-bold font-outfit text-white">Agreement Preview</h2>
+              <button 
+                onClick={() => setPdfUrl(null)}
+                className="p-1.5 rounded-full hover:bg-white/[0.05] transition text-slate-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            <iframe src={pdfUrl} className="flex-1 w-full" />
+            <iframe src={pdfUrl} className="flex-1 w-full bg-neutral-900 border-none" title="Agreement PDF Preview" />
 
-            <div className="flex gap-3 p-3 border-t border-gray-700">
+            <div className="flex justify-end gap-3 p-4 border-t border-white/[0.08] bg-[#050507]">
               <button
                 onClick={() =>
                   document.querySelector("iframe").contentWindow.print()
                 }
-                className="btn"
+                className="px-5 py-2.5 rounded-xl border border-white/[0.08] hover:bg-white/[0.05] text-sm font-semibold transition"
               >
                 Print
               </button>
 
-              <a href={pdfUrl} download className="btn">
-                Download
+              <a href={pdfUrl} download={`${form.name.toLowerCase().replace(/\s+/g, "-")}-agreement.pdf`} className="btn w-auto px-6">
+                Download PDF
               </a>
             </div>
 

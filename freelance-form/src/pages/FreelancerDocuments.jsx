@@ -757,24 +757,35 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
   const previewTitle = `${activeDocument.label} Preview`;
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 rounded-3xl border border-gray-800 bg-gradient-to-br from-[#111] via-[#0d1628] to-[#111] p-6 shadow-2xl">
-          <p className="text-xs uppercase tracking-[0.35em] text-blue-300">
-            Freelancer Documents
+    <div className="relative min-h-screen bg-[#030303] text-[#f8fafc] px-4 py-12 sm:px-8 overflow-hidden font-sans">
+      {/* 🌌 Background ambient gradient blobs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[140px] pointer-events-none translate-y-1/2"></div>
+
+      <div className="relative z-10 mx-auto max-w-6xl animate-fade-in">
+        
+        {/* 🔥 HEADER JUMBOTRON */}
+        <div className="mb-10 rounded-3xl border border-white/[0.05] bg-gradient-to-br from-[#0c0c0e] via-[#090b11] to-[#0c0c0e] p-8 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+          <p className="text-xs uppercase font-extrabold tracking-[0.25em] text-blue-400">
+            Professional Suite
           </p>
-          <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-            Generate client-ready forms beyond the agreement
+          <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl font-outfit text-white">
+            Freelancer Document Center
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-gray-300 sm:text-base">
-            Create polished PDFs for onboarding, confidentiality, billing, and
-            project closure using the same quick workflow as your agreement form.
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-400">
+            Generate and print brand-aligned onboarding checklists, non-disclosure agreements, professional invoices, payment receipts, and project sign-off paperwork.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-3xl border border-gray-800 bg-[#0f0f0f] p-5 sm:p-6">
-            <div className="mb-6 flex flex-wrap gap-3">
+        {/* 🔥 MAIN GRID */}
+        <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+          
+          {/* LEFT COLUMN: SELECTION & FORM */}
+          <div className="rounded-3xl border border-white/[0.05] bg-white/[0.01] p-6 sm:p-8 backdrop-blur-md">
+            
+            {/* DOCUMENT SWITCHER */}
+            <div className="mb-8 flex flex-wrap gap-2.5">
               {documentTypes.map((documentType) => {
                 const active = documentType.key === selectedType;
 
@@ -783,10 +794,10 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     key={documentType.key}
                     type="button"
                     onClick={() => setDocumentType(documentType.key)}
-                    className={`rounded-full border px-4 py-2 text-sm transition ${
+                    className={`rounded-xl border px-4 py-2.5 text-xs font-semibold transition duration-200 ${
                       active
-                        ? "border-blue-500 bg-blue-600 text-white"
-                        : "border-gray-700 bg-[#151515] text-gray-300 hover:border-gray-500"
+                        ? "border-blue-500 bg-blue-600/10 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                        : "border-white/[0.05] bg-white/[0.01] text-slate-400 hover:border-slate-700 hover:text-white"
                     }`}
                   >
                     {documentType.label}
@@ -795,34 +806,20 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
               })}
             </div>
 
-            <div className="mb-6 rounded-2xl border border-gray-800 bg-[#121212] p-5">
-              <h2 className="text-xl font-semibold">{activeDocument.label}</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-400">
+            {/* ACTIVE DOCUMENT HEADER */}
+            <div className="mb-6 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
+              <h2 className="text-xl font-bold font-outfit text-white">{activeDocument.label}</h2>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
                 {activeDocument.description}
               </p>
             </div>
 
-            <div className="mb-6 rounded-2xl border border-gray-800 bg-[#111] p-5 text-sm leading-relaxed text-gray-300 shadow-lg">
-              <h3 className="mb-3 text-lg font-semibold text-white">
-                {activeDocument.instructionsTitle}
-              </h3>
-              <p className="mb-4">
-                {activeDocument.instructionsLead}
-              </p>
-              <ul className="list-disc space-y-2 pl-5 text-gray-400">
-                {currentInstructions.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
-              <p className="mt-4 text-xs italic text-gray-500">
-                {activeDocument.acknowledgement}
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* MAIN FORM */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm text-gray-400">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">
                     {clientNameLabel(selectedType)}
                   </label>
                   <input
@@ -833,15 +830,16 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                       ["agreement", "welcomeLetter", "onboarding", "paymentReceipt"].includes(
                         selectedType
                       )
-                        ? "Enter client name"
-                        : "Enter client or business name"
+                        ? "e.g. Acme Corp"
+                        : "Client or business name"
                     }
-                    className="input"
+                    className="input-ultra"
                     required
                   />
                 </div>
-                <div>
-                  <label className="mb-2 block text-sm text-gray-400">
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">
                     {projectTitleLabel(selectedType)}
                   </label>
                   <input
@@ -850,46 +848,54 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                     onChange={handleChange}
                     placeholder={
                       selectedType === "welcomeLetter"
-                        ? "Business or studio name"
-                        : ["onboarding", "paymentReceipt"].includes(selectedType)
-                          ? "Project name"
-                          : selectedType === "agreement"
-                            ? "Business name"
-                        : "Project / engagement title"
+                        ? "Project or business focus"
+                        : "Engagement or campaign title"
                     }
-                    className="input"
+                    className="input-ultra"
                   />
                 </div>
-                <input
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  className="input"
-                />
-                <input
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="Phone number"
-                  className="input"
-                />
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">Email Address</label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="client@example.com"
+                    className="input-ultra"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">Phone Number</label>
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder="Contact number"
+                    className="input-ultra"
+                  />
+                </div>
               </div>
 
               {["nda"].includes(selectedType) && (
-                <textarea
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  rows="3"
-                  placeholder="Client address or registered business address"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">Registered Address</label>
+                  <textarea
+                    name="address"
+                    value={form.address}
+                    onChange={handleChange}
+                    rows="3"
+                    placeholder="Enter client's legal/corporate address"
+                    className="input-ultra resize-none"
+                  />
+                </div>
               )}
 
               {["agreement", "welcomeLetter", "onboarding", "invoice", "paymentReceipt"].includes(selectedType) && (
-                <div>
-                  <p className="mb-2 text-sm text-gray-400">Select services</p>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-400 ml-1 block">Scope of Services</label>
                   <div className="flex flex-wrap gap-2">
                     {servicesList.map((service) => {
                       const active = form.services.includes(service);
@@ -899,10 +905,10 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                           key={service}
                           type="button"
                           onClick={() => toggleService(service)}
-                          className={`rounded-lg border px-3 py-2 text-sm transition ${
+                          className={`rounded-xl border px-3 py-2 text-xs font-medium transition duration-200 ${
                             active
-                              ? "border-blue-500 bg-blue-500 text-white"
-                              : "border-gray-700 bg-[#151515] text-gray-300"
+                              ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                              : "border-white/[0.05] bg-white/[0.01] text-slate-400 hover:border-slate-700"
                           }`}
                         >
                           {service}
@@ -915,155 +921,206 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {["agreement", "nda"].includes(selectedType) && (
-                  <input
-                    name="startDate"
-                    type="date"
-                    value={form.startDate}
-                    onChange={handleChange}
-                    className="input"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Start Date</label>
+                    <input
+                      name="startDate"
+                      type="date"
+                      value={form.startDate}
+                      onChange={handleChange}
+                      className="input-ultra"
+                    />
+                  </div>
                 )}
 
                 {["nda"].includes(selectedType) && (
-                  <input
-                    name="endDate"
-                    type="date"
-                    value={form.endDate}
-                    onChange={handleChange}
-                    className="input"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Expiration Date</label>
+                    <input
+                      name="endDate"
+                      type="date"
+                      value={form.endDate}
+                      onChange={handleChange}
+                      className="input-ultra"
+                    />
+                  </div>
                 )}
 
                 {["welcomeLetter", "onboarding"].includes(selectedType) && (
-                  <input
-                    name="onboardingDate"
-                    type="date"
-                    value={form.onboardingDate}
-                    onChange={handleChange}
-                    className="input"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Onboarding Date</label>
+                    <input
+                      name="onboardingDate"
+                      type="date"
+                      value={form.onboardingDate}
+                      onChange={handleChange}
+                      className="input-ultra"
+                    />
+                  </div>
                 )}
 
                 {["offboarding"].includes(selectedType) && (
-                  <input
-                    name="offboardingDate"
-                    type="date"
-                    value={form.offboardingDate}
-                    onChange={handleChange}
-                    className="input"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Project Closure Date</label>
+                    <input
+                      name="offboardingDate"
+                      type="date"
+                      value={form.offboardingDate}
+                      onChange={handleChange}
+                      className="input-ultra"
+                    />
+                  </div>
                 )}
 
                 {["agreement", "invoice"].includes(selectedType) && (
-                  <input
-                    name="amount"
-                    value={form.amount}
-                    onChange={handleChange}
-                    placeholder="Project amount"
-                    className="input"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Project Value</label>
+                    <input
+                      name="amount"
+                      value={form.amount}
+                      onChange={handleChange}
+                      placeholder="e.g. 25,000"
+                      className="input-ultra"
+                    />
+                  </div>
                 )}
 
                 {["paymentReceipt"].includes(selectedType) && (
                   <>
-                    <input
-                      name="totalAmount"
-                      value={form.totalAmount}
-                      onChange={handleChange}
-                      placeholder="Total project cost"
-                      className="input"
-                    />
-                    <input
-                      name="receivedAmount"
-                      value={form.receivedAmount}
-                      onChange={handleChange}
-                      placeholder="Amount received"
-                      className="input"
-                    />
-                    <input
-                      name="receiptNumber"
-                      value={form.receiptNumber}
-                      onChange={handleChange}
-                      placeholder="Receipt number"
-                      className="input"
-                    />
-                    <input
-                      name="paymentMode"
-                      value={form.paymentMode}
-                      onChange={handleChange}
-                      placeholder="Payment mode"
-                      className="input"
-                    />
-                    <input
-                      name="paymentDate"
-                      type="date"
-                      value={form.paymentDate}
-                      onChange={handleChange}
-                      className="input"
-                    />
-                    <input
-                      name="currency"
-                      value={form.currency}
-                      onChange={handleChange}
-                      placeholder="Currency"
-                      className="input"
-                    />
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Total Project Value</label>
+                      <input
+                        name="totalAmount"
+                        value={form.totalAmount}
+                        onChange={handleChange}
+                        placeholder="Total project cost"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Amount Received</label>
+                      <input
+                        name="receivedAmount"
+                        value={form.receivedAmount}
+                        onChange={handleChange}
+                        placeholder="Amount paid"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Receipt Number</label>
+                      <input
+                        name="receiptNumber"
+                        value={form.receiptNumber}
+                        onChange={handleChange}
+                        placeholder="REC-001"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Payment Method</label>
+                      <input
+                        name="paymentMode"
+                        value={form.paymentMode}
+                        onChange={handleChange}
+                        placeholder="e.g. UPI, GPay"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Transaction Date</label>
+                      <input
+                        name="paymentDate"
+                        type="date"
+                        value={form.paymentDate}
+                        onChange={handleChange}
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Currency Code</label>
+                      <input
+                        name="currency"
+                        value={form.currency}
+                        onChange={handleChange}
+                        placeholder="INR"
+                        className="input-ultra"
+                      />
+                    </div>
                   </>
                 )}
 
                 {["invoice"].includes(selectedType) && (
                   <>
-                    <input
-                      name="invoiceNumber"
-                      value={form.invoiceNumber}
-                      onChange={handleChange}
-                      placeholder="Invoice number"
-                      className="input"
-                    />
-                    <input
-                      name="currency"
-                      value={form.currency}
-                      onChange={handleChange}
-                      placeholder="Currency"
-                      className="input"
-                    />
-                    <input
-                      name="issueDate"
-                      type="date"
-                      value={form.issueDate}
-                      onChange={handleChange}
-                      className="input"
-                    />
-                    <input
-                      name="dueDate"
-                      type="date"
-                      value={form.dueDate}
-                      onChange={handleChange}
-                      className="input"
-                    />
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Invoice Number</label>
+                      <input
+                        name="invoiceNumber"
+                        value={form.invoiceNumber}
+                        onChange={handleChange}
+                        placeholder="INV-001"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Currency Code</label>
+                      <input
+                        name="currency"
+                        value={form.currency}
+                        onChange={handleChange}
+                        placeholder="INR"
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Issue Date</label>
+                      <input
+                        name="issueDate"
+                        type="date"
+                        value={form.issueDate}
+                        onChange={handleChange}
+                        className="input-ultra"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400 ml-1">Due Date</label>
+                      <input
+                        name="dueDate"
+                        type="date"
+                        value={form.dueDate}
+                        onChange={handleChange}
+                        className="input-ultra"
+                      />
+                    </div>
                   </>
                 )}
               </div>
 
               {["onboarding", "offboarding"].includes(selectedType) && (
-                <textarea
-                  name="deliverables"
-                  value={form.deliverables}
-                  onChange={handleChange}
-                  rows="4"
-                  placeholder="Deliverables, assets, access, handover items"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">Project Deliverables</label>
+                  <textarea
+                    name="deliverables"
+                    value={form.deliverables}
+                    onChange={handleChange}
+                    rows="3"
+                    placeholder="Deliverables, design layouts, login details, etc..."
+                    className="input-ultra resize-none"
+                  />
+                </div>
               )}
 
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                rows="4"
-                placeholder="Additional terms, instructions, or notes"
-                className="input"
-              />
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-400 ml-1">Extra Information / Remarks</label>
+                <textarea
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="Payment remarks, Support clauses, custom requirements..."
+                  className="input-ultra resize-none"
+                />
+              </div>
 
               <div
                 className={`grid gap-4 ${
@@ -1073,45 +1130,79 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
                 }`}
               >
                 {shouldShowClientSignature(selectedType) && (
-                  <input
-                    name="signature"
-                    value={form.signature}
-                    onChange={handleChange}
-                    placeholder={
-                      selectedType === "agreement"
-                        ? "Client signature name"
-                        : "Client signature name (optional)"
-                    }
-                    className="input"
-                    required={selectedType === "agreement"}
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400 ml-1">Client Signature Authority</label>
+                    <input
+                      name="signature"
+                      value={form.signature}
+                      onChange={handleChange}
+                      placeholder={
+                        selectedType === "agreement"
+                          ? "Required client name"
+                          : "Client signatory (optional)"
+                      }
+                      className="input-ultra"
+                      required={selectedType === "agreement"}
+                    />
+                  </div>
                 )}
-                <input
-                  name="companyRepresentative"
-                  value={form.companyRepresentative}
-                  onChange={handleChange}
-                  placeholder="Company representative"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 ml-1">Company Representative</label>
+                  <input
+                    name="companyRepresentative"
+                    value={form.companyRepresentative}
+                    onChange={handleChange}
+                    placeholder="Representative name"
+                    className="input-ultra"
+                  />
+                </div>
               </div>
 
-              <button className="btn">
-                Generate {activeDocument.label}
+              <button className="btn w-full pt-4">
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Generate {activeDocument.label} PDF
               </button>
             </form>
           </div>
 
+          {/* RIGHT COLUMN: INFO & PROCEDURES */}
           <div className="space-y-6">
-            <div className="rounded-3xl border border-gray-800 bg-[#101010] p-5">
-              <h3 className="text-lg font-semibold">Included document types</h3>
-              <div className="mt-4 space-y-3">
+            
+            {/* INSTRUCTIONS */}
+            <div className="rounded-3xl border border-white/[0.05] bg-white/[0.01] p-6 shadow-lg backdrop-blur-md relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 rounded-full blur-2xl"></div>
+              <h3 className="text-lg font-bold font-outfit text-white mb-3">
+                {activeDocument.instructionsTitle}
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                {activeDocument.instructionsLead}
+              </p>
+              <ul className="space-y-3 pl-1">
+                {currentInstructions.map((point) => (
+                  <li key={point} className="text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
+                    <span className="mt-1 w-1.5 h-1.5 flex-shrink-0 rounded-full bg-indigo-500"></span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-5 text-[10px] italic text-slate-500 border-t border-white/[0.05] pt-3">
+                {activeDocument.acknowledgement}
+              </p>
+            </div>
+
+            {/* TYPES INDEX */}
+            <div className="rounded-3xl border border-white/[0.05] bg-white/[0.01] p-6 backdrop-blur-md">
+              <h3 className="text-base font-bold font-outfit text-white mb-4">Document Catalog</h3>
+              <div className="space-y-3">
                 {documentTypes.map((documentType) => (
                   <div
                     key={documentType.key}
-                    className="rounded-2xl border border-gray-800 bg-[#151515] p-4"
+                    className="rounded-xl border border-white/[0.03] bg-white/[0.01] p-4 hover:border-white/[0.08] transition duration-200"
                   >
-                    <p className="font-medium text-white">{documentType.label}</p>
-                    <p className="mt-1 text-sm leading-6 text-gray-400">
+                    <p className="text-xs font-bold text-slate-200">{documentType.label}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
                       {documentType.description}
                     </p>
                   </div>
@@ -1119,51 +1210,46 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-blue-900/50 bg-[#0f1626] p-5">
-              <h3 className="text-lg font-semibold text-white">How to use</h3>
-              <p className="mt-2 text-sm leading-6 text-gray-300">
-                Pick a document, fill the client details, generate the PDF, then
-                preview, print, or download it immediately.
+            {/* WORKFLOW */}
+            <div className="rounded-3xl border border-blue-900/30 bg-[#060a13]/40 p-6 backdrop-blur-md">
+              <h3 className="text-base font-bold font-outfit text-blue-300 mb-2">Automated Workflow</h3>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Choose the template type, populate the form parameters, generate the file, then instantly preview, print, or download your legally binding copy.
               </p>
             </div>
 
-            <div className="rounded-3xl border border-gray-800 bg-[#101010] p-5">
-              <h3 className="text-lg font-semibold">Included in this form</h3>
-              <div className="mt-4 space-y-2 text-sm leading-6 text-gray-400">
-                {currentInstructions.map((point) => (
-                  <p key={point}>• {point}</p>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
+      {/* PREVIEW MODAL */}
       {pdfUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-2xl border border-gray-800 bg-[#111]">
-            <div className="flex items-center justify-between border-b border-gray-800 p-4">
-              <h2 className="text-lg font-semibold">{previewTitle}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in">
+          <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-3xl border border-white/[0.08] bg-[#09090b] shadow-2xl overflow-hidden animate-slide-up">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4 bg-[#09090b]">
+              <h2 className="text-lg font-bold font-outfit text-white">{previewTitle}</h2>
               <button
                 type="button"
                 onClick={() => setPdfUrl(null)}
-                className="rounded-lg border border-gray-700 px-3 py-1 text-sm"
+                className="p-1.5 rounded-full hover:bg-white/[0.05] transition text-slate-400 hover:text-white"
               >
-                Close
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             <iframe
               src={pdfUrl}
               title={previewTitle}
-              className="flex-1 w-full"
+              className="flex-1 w-full bg-neutral-900 border-none"
             />
 
-            <div className="flex flex-col gap-3 border-t border-gray-800 p-4 sm:flex-row">
+            <div className="flex justify-end gap-3 p-4 border-t border-white/[0.08] bg-[#050507]">
               <button
                 type="button"
                 onClick={() => document.querySelector("iframe")?.contentWindow?.print()}
-                className="btn"
+                className="px-5 py-2.5 rounded-xl border border-white/[0.08] hover:bg-white/[0.05] text-sm font-semibold transition"
               >
                 Print
               </button>
@@ -1171,9 +1257,9 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
               <a
                 href={pdfUrl}
                 download={`${activeDocument.label.toLowerCase().replace(/\s+/g, "-")}.pdf`}
-                className="btn text-center"
+                className="btn w-auto px-6"
               >
-                Download
+                Download PDF
               </a>
             </div>
           </div>

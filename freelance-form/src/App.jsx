@@ -4,6 +4,7 @@ import ServiceForm from "./components/ServiceForm";
 import AdminPanel from "./components/AdminPanel";
 import AdminLoginModal from "./components/AdminLoginModal";
 import Quotation from "./pages/Quotation";
+import RequestTracker from "./pages/RequestTracker";
 import FreelancerDocuments, {
   routeToType,
 } from "./pages/FreelancerDocuments";
@@ -25,6 +26,10 @@ function App() {
 
   if (currentPath === "/quotation") {
     return <Quotation />;
+  }
+
+  if (currentPath === "/tracker" || currentPath === "/track") {
+    return <RequestTracker />;
   }
 
   // Persist login

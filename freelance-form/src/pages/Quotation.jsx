@@ -41,7 +41,7 @@ export default function Quotation() {
   const total = subtotal - discountValue;
 
   const formatCurrency = (num) =>
-  "Rs. " + Number(num).toLocaleString("en-IN");
+    "Rs. " + Number(num).toLocaleString("en-IN");
 
   // 🔥 PDF
   const generatePDF = () => {
@@ -121,155 +121,210 @@ export default function Quotation() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="relative min-h-screen bg-[#030303] text-[#f8fafc] px-6 py-16 sm:py-24 overflow-hidden font-sans">
+      {/* 🌌 Background ambient gradient blobs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[140px] pointer-events-none translate-y-1/2"></div>
 
-      <div className="max-w-2xl mx-auto">
+      <div className="relative z-10 max-w-3xl mx-auto animate-fade-in">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <span className="px-3 py-1 text-xs font-semibold tracking-wider uppercase text-blue-400 bg-blue-400/10 rounded-full border border-blue-400/20">
+            Billing Tools
+          </span>
+          <h1 className="text-4xl font-extrabold font-outfit text-white mt-4">
+            Quotation Generator
+          </h1>
+          <p className="text-slate-400 mt-2 text-sm">
+            Quickly estimate project costs and export a clean PDF quote for your prospects.
+          </p>
+        </div>
 
-        <h1 className="text-3xl mb-6 text-center">Quotation</h1>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-
-          <input
-            placeholder="Client Name"
-            onChange={(e) =>
-              setClient({ ...client, name: e.target.value })
-            }
-            className="input"
-            required
-          />
-
-          <input
-            placeholder="Phone Number"
-            onChange={(e) =>
-              setClient({ ...client, phone: e.target.value })
-            }
-            className="input"
-            required
-          />
-
-          {/* 🔥 FIXED GRID LAYOUT */}
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-[1fr_120px_50px] gap-3"
-            >
-              {/* SERVICE (BIG) */}
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white/[0.01] border border-white/[0.05] p-8 rounded-3xl backdrop-blur-md">
+          
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 ml-1">Client Name</label>
               <input
-                placeholder="Service"
-                value={item.service}
+                placeholder="Client or company name"
                 onChange={(e) =>
-                  handleItemChange(index, "service", e.target.value)
+                  setClient({ ...client, name: e.target.value })
                 }
-                className="input"
+                className="input-ultra"
+                required
               />
-
-              {/* AMOUNT (SMALL) */}
-              <input
-                placeholder="₹"
-                type="number"
-                value={item.amount}
-                onChange={(e) =>
-                  handleItemChange(index, "amount", e.target.value)
-                }
-                className="input text-center no-spinner"
-              />
-
-              {/* DELETE */}
-              <button
-                type="button"
-                onClick={() => removeRow(index)}
-                className="bg-red-500 hover:bg-red-600 rounded"
-              >
-                ✕
-              </button>
             </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={addRow}
-            className="bg-gray-800 px-4 py-2 rounded"
-          >
-            + Add Service
-          </button>
-
-          {/* DISCOUNT */}
-          <input
-            placeholder="Discount % (optional)"
-            type="number"
-            value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
-            className="input no-spinner"
-          />
-
-          {/* TOTAL */}
-          <div className="text-right font-bold space-y-1">
-            <p>Subtotal: ₹{subtotal}</p>
-            {discount && <p>Discount: -₹{discountValue}</p>}
-            <p className="text-lg">Total: ₹{total}</p>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 ml-1">Phone Number</label>
+              <input
+                placeholder="Client contact number"
+                onChange={(e) =>
+                  setClient({ ...client, phone: e.target.value })
+                }
+                className="input-ultra"
+                required
+              />
+            </div>
           </div>
 
-          <button className="btn">Generate Quotation</button>
+          {/* 🔥 SERVICES ITEMS TABLE */}
+          <div className="space-y-4">
+            <label className="text-xs font-semibold text-slate-400 ml-1 block">Line Items (Services & Cost)</label>
+            
+            <div className="space-y-3">
+              {items.map((item, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-[1fr_130px_48px] gap-3 items-center"
+                >
+                  <input
+                    placeholder="Service description"
+                    value={item.service}
+                    onChange={(e) =>
+                      handleItemChange(index, "service", e.target.value)
+                    }
+                    className="input-ultra"
+                    required
+                  />
+
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-slate-500 text-sm">₹</span>
+                    <input
+                      placeholder="Cost"
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) =>
+                        handleItemChange(index, "amount", e.target.value)
+                      }
+                      className="input-ultra pl-8 text-right no-spinner"
+                      required
+                    />
+                  </div>
+
+                  {/* DELETE */}
+                  <button
+                    type="button"
+                    onClick={() => removeRow(index)}
+                    disabled={items.length === 1}
+                    className="
+                      h-[48px] w-12 flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 
+                      text-red-400 hover:bg-red-500/20 hover:text-red-300 transition duration-200 disabled:opacity-30 disabled:cursor-not-allowed
+                    "
+                    title="Remove item"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={addRow}
+              className="
+                inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02] 
+                text-xs font-semibold text-slate-300 hover:bg-white/[0.06] hover:border-slate-600 transition duration-200
+              "
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Line Item</span>
+            </button>
+          </div>
+
+          {/* DISCOUNT */}
+          <div className="grid gap-6 sm:grid-cols-2 pt-2">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 ml-1">Discount % (Optional)</label>
+              <div className="relative flex items-center">
+                <input
+                  placeholder="e.g. 10"
+                  type="number"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  className="input-ultra pr-8 no-spinner"
+                />
+                <span className="absolute right-4 text-slate-500 text-sm">%</span>
+              </div>
+            </div>
+
+            {/* TOTALS SUMMARY */}
+            <div className="flex flex-col justify-end text-right font-semibold space-y-1.5 pr-2">
+              <div className="text-sm text-slate-400">
+                Subtotal: <span className="text-white">₹{subtotal.toLocaleString("en-IN")}</span>
+              </div>
+              {discount && (
+                <div className="text-sm text-red-400/80">
+                  Discount ({discount}%): -₹{discountValue.toLocaleString("en-IN")}
+                </div>
+              )}
+              <div className="text-lg font-bold font-outfit text-white">
+                Total Estimate: <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">₹{total.toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+          </div>
+
+          <button className="btn w-full mt-4">
+            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Generate Quotation PDF
+          </button>
 
         </form>
       </div>
 
-      {/* PREVIEW */}
+      {/* PREVIEW MODAL */}
       {pdfUrl && (
-  <div className="fixed inset-0 bg-black/90 flex justify-center items-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#09090b] border border-white/[0.08] w-full max-w-4xl h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
 
-    <div className="bg-[#111] w-full max-w-5xl h-[90vh] flex flex-col rounded-xl shadow-2xl">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.08]">
+              <h2 className="text-lg font-bold font-outfit text-white">Quotation Preview</h2>
+              <button
+                onClick={() => setPdfUrl(null)}
+                className="p-1.5 rounded-full hover:bg-white/[0.05] transition text-slate-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-      {/* 🔥 HEADER */}
-      <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
+            <iframe
+              src={pdfUrl}
+              className="flex-1 w-full bg-neutral-900 border-none"
+              title="Quotation PDF Preview"
+            />
 
-        <h2 className="text-lg font-semibold">
-          Quotation Preview
-        </h2>
+            <div className="flex justify-end gap-3 p-4 border-t border-white/[0.08] bg-[#050507]">
+              <button
+                onClick={() => {
+                  const iframe = document.querySelector("iframe");
+                  iframe.contentWindow.print();
+                }}
+                className="px-5 py-2.5 rounded-xl border border-white/[0.08] hover:bg-white/[0.05] text-sm font-semibold transition"
+              >
+                Print
+              </button>
 
-        {/* ❌ CLOSE */}
-        <button
-          onClick={() => setPdfUrl(null)}
-          className="text-gray-400 hover:text-white text-xl"
-        >
-          ✕
-        </button>
+              <a
+                href={pdfUrl}
+                download="quotation.pdf"
+                className="btn w-auto px-6"
+              >
+                Download PDF
+              </a>
+            </div>
 
-      </div>
-
-      {/* PDF */}
-      <iframe
-        src={pdfUrl}
-        className="flex-1 w-full bg-white"
-        title="Quotation Preview"
-      />
-
-      {/* 🔥 ACTIONS */}
-      <div className="flex gap-3 p-4 border-t border-gray-700">
-
-        <button
-          onClick={() => {
-            const iframe = document.querySelector("iframe");
-            iframe.contentWindow.print();
-          }}
-          className="btn"
-        >
-          Print
-        </button>
-
-        <a
-          href={pdfUrl}
-          download="quotation.pdf"
-          className="btn"
-        >
-          Download
-        </a>
-
-      </div>
-
-    </div>
-  </div>
-     )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

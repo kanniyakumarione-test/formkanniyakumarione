@@ -10,7 +10,8 @@ export default function AdminPanel() {
   const [newLead, setNewLead] = useState({
     name: "",
     phone: "",
-    email: "",    location: "",
+    email: "",
+    location: "",
     budget: "",
     message: "",
     service: "",
@@ -52,24 +53,6 @@ export default function AdminPanel() {
 
     return () => clearInterval(interval);
   }, []);
-
-  const updateField = async (rowIndex, field, value) => {
-    setData((current) =>
-      current.map((row) =>
-        Number(row.rowIndex) === Number(rowIndex)
-          ? { ...row, [field]: value }
-          : row
-      )
-    );
-
-    try {
-      await saveField(rowIndex, field, value);
-    } catch (err) {
-      console.error("Update failed");
-      await fetchData();
-      window.alert(`Could not update ${field}. Please try again.`);
-    }
-  };
 
   const deleteLead = async (rowIndex, name) => {
     const confirmed = window.confirm(
@@ -245,12 +228,23 @@ export default function AdminPanel() {
     }
   };
 
+  const getStatusBadge = (status) => {
+    const s = String(status || "").toLowerCase();
+    if (s === "closed") {
+      return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+    }
+    if (s === "contacted") {
+      return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+    }
+    return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+  };
+
   const renderInput = (
     row,
     field,
     placeholder,
     isEditing,
-    className = "bg-[#1a1a1a] border border-gray-700 rounded p-2 w-full"
+    className = "bg-white/[0.03] border border-white/[0.08] rounded-lg p-2 w-full text-sm outline-none focus:border-blue-500"
   ) =>
     isEditing ? (
       <input
@@ -260,7 +254,7 @@ export default function AdminPanel() {
         className={className}
       />
     ) : (
-      <p className="break-words text-sm text-white">{row[field] || "-"}</p>
+      <p className="break-words text-sm text-slate-200">{row[field] || "-"}</p>
     );
 
   const renderTextarea = (row, field, placeholder, isEditing, className) =>
@@ -269,476 +263,535 @@ export default function AdminPanel() {
         value={draftRow?.[field] || ""}
         onChange={(e) => handleDraftChange(field, e.target.value)}
         placeholder={placeholder}
-        rows="3"
+        rows="2"
         className={className}
       />
     ) : (
-      <p className="break-words whitespace-pre-wrap text-sm text-white">
+      <p className="break-words whitespace-pre-wrap text-sm text-slate-300">
         {row[field] || "-"}
       </p>
     );
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-        <h1 className="text-2xl font-semibold tracking-wide">
-          Admin Dashboard
-        </h1>
+    <div className="relative min-h-screen bg-[#030303] text-[#f8fafc] px-4 py-8 sm:px-8 font-sans overflow-hidden">
+      {/* 🌌 Ambient Background Elements */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[140px] pointer-events-none translate-y-1/2"></div>
 
-        <div className="flex gap-3 w-full sm:w-auto">
-          <input
-            placeholder="Search..."
-            onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-[#1a1a1a] border border-gray-700 text-sm w-full sm:w-auto"
-          />
+      <div className="relative z-10 max-w-7xl mx-auto animate-fade-in">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 pb-6 border-b border-white/[0.05]">
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">
+              Control Panel
+            </span>
+            <h1 className="text-3xl font-extrabold font-outfit text-white mt-1">
+              Admin Dashboard
+            </h1>
+          </div>
 
-          <button
-            onClick={() => {
-              localStorage.removeItem("admin");
-              window.location.reload();
-            }}
-            className="px-3 py-2 bg-red-500 rounded-lg text-sm"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-center">
+            
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input
+                placeholder="Filter leads..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-sm w-full outline-none focus:border-indigo-500/50 transition duration-200"
+              />
+            </div>
 
-      <div className="bg-[#111] border border-gray-800 rounded-xl p-4 sm:p-5 mb-6">
-        <h2 className="text-lg font-semibold">Add Lead</h2>
-        <p className="text-sm text-gray-400 mt-1 mb-4">
-          Create a lead directly from the admin page.
-        </p>
-
-        <form
-          onSubmit={addLead}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-        >
-          <input
-            name="name"
-            value={newLead.name}
-            onChange={handleNewLeadChange}
-            placeholder="Name"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-            required
-          />
-
-          <input
-            name="phone"
-            value={newLead.phone}
-            onChange={handleNewLeadChange}
-            placeholder="Phone"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-            required
-          />
-
-          <input
-            name="service"
-            value={newLead.service}
-            onChange={handleNewLeadChange}
-            placeholder="Service"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-            required
-          />
-
-          <input
-            name="email"
-            value={newLead.email}
-            onChange={handleNewLeadChange}
-            placeholder="Email"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-          />
-
-          <input
-            name="location"
-            value={newLead.location}
-            onChange={handleNewLeadChange}
-            placeholder="Location"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-          />
-
-          <input
-            name="budget"
-            value={newLead.budget}
-            onChange={handleNewLeadChange}
-            placeholder="Budget"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2"
-          />
-
-          <button
-            type="submit"
-            disabled={isAddingLead}
-            className="bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2 font-medium disabled:opacity-50"
-          >
-            {isAddingLead ? "Adding..." : "Add Lead"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => openWhatsAppByPhone(newLead.phone)}
-            className="bg-green-600 hover:bg-green-500 rounded-lg px-4 py-2 font-medium"
-          >
-            Chat on WhatsApp
-          </button>
-
-          <textarea
-            name="message"
-            value={newLead.message}
-            onChange={handleNewLeadChange}
-            placeholder="Notes / Message"
-            rows="3"
-            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 sm:col-span-2 lg:col-span-3"
-          />
-        </form>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-[#111] p-4 rounded-xl border border-gray-800 shadow">
-          <p className="text-gray-400 text-sm">Total Leads</p>
-          <h2 className="text-xl font-semibold">{data.length}</h2>
-        </div>
-      </div>
-
-      <div className="bg-[#111] border border-gray-800 rounded-xl p-4 sm:p-5 mb-6">
-        <h2 className="text-lg font-semibold">Freelancer Documents</h2>
-        <p className="text-sm text-gray-400 mt-1 mb-4">
-          Open ready-to-generate client forms in a new tab.
-        </p>
-
-        <div className="flex flex-wrap gap-3">
-          {[
-            { label: "Agreement", href: "/agreement" },
-            { label: "Welcome Letter", href: "/welcome-letter" },
-            { label: "Onboarding Doc", href: "/onboarding-doc" },
-            { label: "NDA", href: "/nda" },
-            { label: "Invoice", href: "/invoice" },
-            { label: "Payment Receipt", href: "/payment-receipt" },
-            { label: "Offboarding Doc", href: "/offboarding-doc" },
-          ].map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 rounded-lg bg-[#1a1a1a] border border-gray-700 text-sm hover:border-blue-500 hover:text-blue-300 transition"
+            <button
+              onClick={() => {
+                localStorage.removeItem("admin");
+                window.location.reload();
+              }}
+              className="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 text-red-400 rounded-xl text-sm font-semibold transition w-full sm:w-auto"
             >
-              {item.label}
-            </a>
-          ))}
+              Sign Out
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 sm:hidden">
-        {filtered.map((row, i) => {
-          const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
+        {/* STATS COUNT */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Leads</p>
+            <h2 className="text-3xl font-extrabold font-outfit text-white mt-1.5">{data.length}</h2>
+          </div>
+          <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Pending</p>
+            <h2 className="text-3xl font-extrabold font-outfit text-amber-400 mt-1.5">
+              {data.filter(d => !d.status || d.status.toLowerCase() === "pending").length}
+            </h2>
+          </div>
+          <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Contacted</p>
+            <h2 className="text-3xl font-extrabold font-outfit text-indigo-400 mt-1.5">
+              {data.filter(d => d.status?.toLowerCase() === "contacted").length}
+            </h2>
+          </div>
+          <div className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Closed</p>
+            <h2 className="text-3xl font-extrabold font-outfit text-emerald-400 mt-1.5">
+              {data.filter(d => d.status?.toLowerCase() === "closed").length}
+            </h2>
+          </div>
+        </div>
 
-          return (
-            <div key={i} className="bg-[#111] p-4 rounded-xl border border-gray-800">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm text-gray-400">Lead #{row.rowIndex}</p>
+        {/* DOCK QUICK LINKS */}
+        <div className="bg-white/[0.01] border border-white/[0.05] rounded-3xl p-6 sm:p-8 mb-8 backdrop-blur-md">
+          <h2 className="text-lg font-bold font-outfit text-white">Freelancer Document Suite</h2>
+          <p className="text-xs text-slate-400 mt-1 mb-4">
+            Quickly launch client-facing document generators in a separate workspace.
+          </p>
 
-                <div className="flex gap-2">
-                  {isEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => saveRow(row)}
-                        disabled={savingRowIndex === row.rowIndex}
-                        className="px-3 py-1 rounded bg-blue-600 text-sm disabled:opacity-50"
-                      >
-                        {savingRowIndex === row.rowIndex ? "Saving..." : "Save"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEditing}
-                        className="px-3 py-1 rounded bg-gray-700 text-sm"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => startEditing(row)}
-                      className="px-3 py-1 rounded bg-[#1a1a1a] border border-gray-700 text-sm"
-                    >
-                      Edit
-                    </button>
-                  )}
-                </div>
-              </div>
+          <div className="flex flex-wrap gap-2.5">
+            {[
+              { label: "Agreement Form", href: "/agreement" },
+              { label: "Welcome Letter", href: "/welcome-letter" },
+              { label: "Onboarding Document", href: "/onboarding-doc" },
+              { label: "Non-Disclosure (NDA)", href: "/nda" },
+              { label: "Client Invoice", href: "/invoice" },
+              { label: "Payment Receipt", href: "/payment-receipt" },
+              { label: "Project Offboarding", href: "/offboarding-doc" },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs font-medium text-slate-300 hover:border-indigo-500/40 hover:text-blue-400 transition"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
 
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Name</p>
-                  {renderInput(
-                    row,
-                    "name",
-                    "Name",
-                    isEditing,
-                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 font-semibold"
-                  )}
-                </div>
+        {/* ADD LEAD COLLAPSIBLE/CARD */}
+        <div className="bg-white/[0.01] border border-white/[0.05] rounded-3xl p-6 sm:p-8 mb-8 backdrop-blur-md">
+          <h2 className="text-lg font-bold font-outfit text-white">Add New Business Lead</h2>
+          <p className="text-xs text-slate-400 mt-1 mb-6">
+            Log prospects directly in your tracking panel manually.
+          </p>
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Phone</p>
-                  {renderInput(
-                    row,
-                    "phone",
-                    "Phone",
-                    isEditing,
-                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 text-sm text-gray-200"
-                  )}
-                </div>
+          <form
+            onSubmit={addLead}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <input
+              name="name"
+              value={newLead.name}
+              onChange={handleNewLeadChange}
+              placeholder="Lead Name"
+              className="input-ultra text-sm"
+              required
+            />
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Service</p>
-                  {renderInput(
-                    row,
-                    "service",
-                    "Service",
-                    isEditing,
-                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2 text-sm"
-                  )}
-                </div>
+            <input
+              name="phone"
+              value={newLead.phone}
+              onChange={handleNewLeadChange}
+              placeholder="Phone Number"
+              className="input-ultra text-sm"
+              required
+            />
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Email</p>
-                  {renderInput(row, "email", "Email", isEditing)}
-                </div>
+            <input
+              name="service"
+              value={newLead.service}
+              onChange={handleNewLeadChange}
+              placeholder="Service Type"
+              className="input-ultra text-sm"
+              required
+            />
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Location</p>
-                  {renderInput(row, "location", "Location", isEditing)}
-                </div>
+            <input
+              name="email"
+              value={newLead.email}
+              onChange={handleNewLeadChange}
+              placeholder="Email Address"
+              className="input-ultra text-sm"
+            />
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Budget</p>
-                  {renderInput(row, "budget", "Budget", isEditing)}
-                </div>
+            <input
+              name="location"
+              value={newLead.location}
+              onChange={handleNewLeadChange}
+              placeholder="Location"
+              className="input-ultra text-sm"
+            />
 
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Message</p>
-                  {renderTextarea(
-                    row,
-                    "message",
-                    "Message",
-                    isEditing,
-                    "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
-                  )}
-                </div>
-              </div>
+            <input
+              name="budget"
+              value={newLead.budget}
+              onChange={handleNewLeadChange}
+              placeholder="Budget Request (₹)"
+              className="input-ultra text-sm"
+            />
 
-              <div className="mt-3">
-                <p className="text-xs text-gray-400 mb-1">Status</p>
-                {isEditing ? (
-                  <select
-                    value={draftRow?.status || "Pending"}
-                    onChange={(e) => handleDraftChange("status", e.target.value)}
-                    className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
-                  >
-                    <option>Pending</option>
-                    <option>Contacted</option>
-                    <option>Closed</option>
-                  </select>
-                ) : (
-                  <p className="text-sm text-white">{row.status || "Pending"}</p>
-                )}
-              </div>
+            <textarea
+              name="message"
+              value={newLead.message}
+              onChange={handleNewLeadChange}
+              placeholder="Notes, requirements, or client instructions..."
+              rows="2"
+              className="input-ultra text-sm sm:col-span-2 lg:col-span-3 resize-none"
+            />
 
-              <div className="mt-3">
-                <p className="text-xs text-gray-400 mb-1">Notes</p>
-                {renderInput(
-                  row,
-                  "notes",
-                  "Add notes...",
-                  isEditing,
-                  "w-full bg-[#1a1a1a] border border-gray-700 rounded p-2"
-                )}
-              </div>
-
+            <div className="sm:col-span-2 lg:col-span-3 flex justify-end gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => openWhatsApp(row)}
-                className="mt-3 w-full bg-green-500 py-2 rounded-lg"
+                onClick={() => openWhatsAppByPhone(newLead.phone)}
+                className="px-5 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 transition duration-200"
               >
-                WhatsApp
+                Launch WhatsApp
               </button>
 
               <button
-                onClick={() => deleteLead(row.rowIndex, row.name)}
-                disabled={deletingRowIndex === row.rowIndex}
-                className="mt-2 w-full bg-red-500 py-2 rounded-lg disabled:opacity-50"
+                type="submit"
+                disabled={isAddingLead}
+                className="btn w-auto px-6"
               >
-                {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
+                {isAddingLead ? "Adding Prospect..." : "Save Lead Details"}
               </button>
             </div>
-          );
-        })}
-      </div>
+          </form>
+        </div>
 
-      <div className="hidden sm:block bg-[#111] border border-gray-800 rounded-xl overflow-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-[#1a1a1a] text-gray-400">
-            <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Phone</th>
-              <th className="p-3 text-left">Service</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Location</th>
-              <th className="p-3 text-left">Budget</th>
-              <th className="p-3 text-left">Message</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Notes</th>
-              <th className="p-3 text-left">Action</th>
-            </tr>
-          </thead>
+        {/* LEADS LIST - MOBILE TILES */}
+        <div className="grid gap-4 sm:hidden">
+          {filtered.map((row, i) => {
+            const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
 
-          <tbody>
-            {filtered.map((row, i) => {
-              const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
+            return (
+              <div key={i} className="bg-white/[0.01] p-5 rounded-2xl border border-white/[0.05] backdrop-blur-md">
+                <div className="flex items-center justify-between mb-4 border-b border-white/[0.05] pb-3">
+                  <span className="text-[10px] font-bold text-slate-500 tracking-wider">LEAD #{row.rowIndex}</span>
 
-              return (
-                <tr key={i} className="border-t border-gray-800 hover:bg-[#1a1a1a]">
-                  <td className="p-3 min-w-[180px]">
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => saveRow(row)}
+                          disabled={savingRowIndex === row.rowIndex}
+                          className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-semibold disabled:opacity-50 text-white"
+                        >
+                          {savingRowIndex === row.rowIndex ? "Saving..." : "Save"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/[0.08] text-xs font-semibold text-slate-300"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => startEditing(row)}
+                        className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3.5">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Name</label>
                     {renderInput(
                       row,
                       "name",
                       "Name",
                       isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-2.5 font-semibold text-sm outline-none"
                     )}
-                  </td>
-                  <td className="p-3 min-w-[150px]">
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Phone</label>
                     {renderInput(
                       row,
                       "phone",
                       "Phone",
                       isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-2.5 text-sm outline-none"
                     )}
-                  </td>
-                  <td className="p-3 min-w-[160px]">
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Service</label>
                     {renderInput(
                       row,
                       "service",
                       "Service",
                       isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-2.5 text-sm outline-none"
                     )}
-                  </td>
-                  <td className="p-3 min-w-[220px]">
-                    {renderInput(
-                      row,
-                      "email",
-                      "Email",
-                      isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
-                    )}
-                  </td>
-                  <td className="p-3 min-w-[220px]">
-                    {renderInput(
-                      row,
-                      "location",
-                      "Location",
-                      isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
-                    )}
-                  </td>
-                  <td className="p-3 min-w-[140px]">
-                    {renderInput(
-                      row,
-                      "budget",
-                      "Budget",
-                      isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
-                    )}
-                  </td>
-                  <td className="p-3 min-w-[240px]">
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Email</label>
+                    {renderInput(row, "email", "Email", isEditing)}
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Location</label>
+                    {renderInput(row, "location", "Location", isEditing)}
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Budget</label>
+                    {renderInput(row, "budget", "Budget", isEditing)}
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5">Message</label>
                     {renderTextarea(
                       row,
                       "message",
                       "Message",
                       isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-2.5 text-sm outline-none resize-none"
                     )}
-                  </td>
-                  <td className="p-3 min-w-[120px]">
+                  </div>
+                </div>
+
+                <div className="mt-4 border-t border-white/[0.05] pt-4 grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5 block mb-1">Status</label>
                     {isEditing ? (
                       <select
                         value={draftRow?.status || "Pending"}
                         onChange={(e) => handleDraftChange("status", e.target.value)}
-                        className="bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                        className="w-full bg-[#111] border border-white/[0.08] rounded-xl p-2 text-sm outline-none"
                       >
                         <option>Pending</option>
                         <option>Contacted</option>
                         <option>Closed</option>
                       </select>
                     ) : (
-                      <p>{row.status || "Pending"}</p>
+                      <span className={`inline-block px-2.5 py-1 text-[10px] font-bold uppercase rounded-full border ${getStatusBadge(row.status)}`}>
+                        {row.status || "Pending"}
+                      </span>
                     )}
-                  </td>
-                  <td className="p-3 min-w-[180px]">
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 ml-0.5 block mb-1">Notes</label>
                     {renderInput(
                       row,
                       "notes",
                       "Add notes...",
                       isEditing,
-                      "bg-[#1a1a1a] border border-gray-700 p-1 rounded w-full"
+                      "w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-2 text-sm outline-none"
                     )}
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => saveRow(row)}
-                            disabled={savingRowIndex === row.rowIndex}
-                            className="bg-blue-600 px-3 py-1 rounded disabled:opacity-50"
-                          >
-                            {savingRowIndex === row.rowIndex ? "Saving..." : "Save"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={cancelEditing}
-                            className="bg-gray-700 px-3 py-1 rounded"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => startEditing(row)}
-                          className="bg-[#1a1a1a] border border-gray-700 px-3 py-1 rounded"
-                        >
-                          Edit
-                        </button>
-                      )}
+                  </div>
+                </div>
 
-                      <button
-                        type="button"
-                        onClick={() => openWhatsApp(row)}
-                        className="bg-green-500 px-3 py-1 rounded"
-                      >
-                        Chat
-                      </button>
+                <div className="mt-4 pt-3 border-t border-white/[0.05] flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openWhatsApp(row)}
+                    className="flex-1 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold transition"
+                  >
+                    WhatsApp
+                  </button>
 
-                      <button
-                        onClick={() => deleteLead(row.rowIndex, row.name)}
-                        disabled={deletingRowIndex === row.rowIndex}
-                        className="bg-red-500 px-3 py-1 rounded disabled:opacity-50"
-                      >
-                        {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  </td>
+                  <button
+                    onClick={() => deleteLead(row.rowIndex, row.name)}
+                    disabled={deletingRowIndex === row.rowIndex}
+                    className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition disabled:opacity-50"
+                  >
+                    {deletingRowIndex === row.rowIndex ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* LEADS LIST - DESKTOP TABLE */}
+        <div className="hidden sm:block bg-white/[0.01] border border-white/[0.05] rounded-3xl overflow-hidden backdrop-blur-md shadow-2xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-white/[0.02] border-b border-white/[0.05] text-slate-400 text-xs font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="p-4">Name</th>
+                  <th className="p-4">Phone</th>
+                  <th className="p-4">Service</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Location</th>
+                  <th className="p-4">Budget</th>
+                  <th className="p-4">Message</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Notes</th>
+                  <th className="p-4 text-center">Actions</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+
+              <tbody className="divide-y divide-white/[0.04]">
+                {filtered.map((row, i) => {
+                  const isEditing = Number(editingRowIndex) === Number(row.rowIndex);
+
+                  return (
+                    <tr key={i} className="hover:bg-white/[0.02] transition duration-150">
+                      <td className="p-4 min-w-[160px] font-semibold text-white">
+                        {renderInput(
+                          row,
+                          "name",
+                          "Name",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[130px]">
+                        {renderInput(
+                          row,
+                          "phone",
+                          "Phone",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[150px]">
+                        {renderInput(
+                          row,
+                          "service",
+                          "Service",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[180px]">
+                        {renderInput(
+                          row,
+                          "email",
+                          "Email",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[180px]">
+                        {renderInput(
+                          row,
+                          "location",
+                          "Location",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[110px]">
+                        {renderInput(
+                          row,
+                          "budget",
+                          "Budget",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[200px] max-w-[300px]">
+                        {renderTextarea(
+                          row,
+                          "message",
+                          "Message",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm resize-none"
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[125px]">
+                        {isEditing ? (
+                          <select
+                            value={draftRow?.status || "Pending"}
+                            onChange={(e) => handleDraftChange("status", e.target.value)}
+                            className="bg-[#111] border border-white/[0.08] p-1.5 rounded-lg w-full text-sm outline-none"
+                          >
+                            <option>Pending</option>
+                            <option>Contacted</option>
+                            <option>Closed</option>
+                          </select>
+                        ) : (
+                          <span className={`inline-block px-2.5 py-1 text-[10px] font-extrabold uppercase rounded-full border ${getStatusBadge(row.status)}`}>
+                            {row.status || "Pending"}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 min-w-[160px]">
+                        {renderInput(
+                          row,
+                          "notes",
+                          "Notes",
+                          isEditing,
+                          "bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-lg w-full outline-none focus:border-blue-500 text-sm"
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2 justify-center">
+                          {isEditing ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => saveRow(row)}
+                                disabled={savingRowIndex === row.rowIndex}
+                                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEditing}
+                                className="bg-white/[0.05] border border-white/[0.08] text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => startEditing(row)}
+                              className="bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                            >
+                              Edit
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => openWhatsApp(row)}
+                            className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                          >
+                            Chat
+                          </button>
+
+                          <button
+                            onClick={() => deleteLead(row.rowIndex, row.name)}
+                            disabled={deletingRowIndex === row.rowIndex}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-xl text-xs font-semibold transition disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   );

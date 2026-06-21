@@ -2,123 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
-.input-ultra {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 14px;
-  outline: none;
-  transition: 0.2s ease;
-}
-
-.input-ultra::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.input-ultra:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
-  background: rgba(255, 255, 255, 0.06);
-}
-/* 🌑 GLOBAL */
+/* 🌑 GLOBAL STYLES */
 body {
-  background: #0a0a0a;
-  color: white;
-  font-family: system-ui, -apple-system, sans-serif;
+  background: #030303;
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 🔥 INPUT (MAIN) */
-.input {
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1e1e;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+/* ✨ PREMIUM INPUTS */
+.input-ultra, .input, .input-premium {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.input-ultra::placeholder, .input::placeholder, .input-premium::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.input-ultra:focus, .input:focus, .input-premium:focus {
+  border-color: rgba(59, 130, 246, 0.5);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* ✨ PREMIUM INPUT (slightly elevated) */
-.input-premium {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #111, #0a0a0a);
-  border: 1px solid #222;
-  color: white;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.25s ease;
-}
-
-.input-premium::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.input-premium:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-}
-
-/* 🔘 BUTTON */
-.btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: linear-gradient(to right, #3b82f6, #8b5cf6);
-  color: white;
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  opacity: 0.9;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
-.btn:active {
-  transform: scale(0.98);
+/* 🔘 BUTTON STYLES */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
 }
 
-/* 📦 CARD */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+  filter: brightness(1.08);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 📦 PREMIUM GLASS CARDS */
 .card {
-  padding: 16px;
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 14px;
-  transition: all 0.3s ease;
+  position: relative;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(99, 102, 241, 0.25);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.05);
 }
 
 /* 🌟 MODAL GLASS EFFECT */
 .modal-glass {
-  background: linear-gradient(145deg, #0f172a, #020617);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
+  background: rgba(8, 8, 12, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* ✨ GLOW EFFECT */
+/* ✨ GLOW EFFECTS */
 .glow {
   position: relative;
 }
@@ -128,10 +130,11 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(to right, #3b82f6, #8b5cf6);
-  opacity: 0.1;
-  filter: blur(20px);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  opacity: 0.05;
+  filter: blur(24px);
   z-index: -1;
+  pointer-events: none;
 }
 
 /* 🚫 HIDE NUMBER SPINNERS */
@@ -143,4 +146,19 @@ body {
 
 .no-spinner {
   -moz-appearance: textfield;
+}
+
+/* 🌀 STYLISH ANIMATIONS */
+@keyframes glowSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.floating-effect {
+  animation: float 6s ease-in-out infinite;
 }
