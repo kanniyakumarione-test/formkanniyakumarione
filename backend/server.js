@@ -33,7 +33,7 @@ app.use(cors({
 app.use(express.json({ limit: "10kb" }));
 
 const JWT_SECRET = process.env.JWT_SECRET || "kanniyakumarione_super_secret_key_2026";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Rosi@1234";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // JWT Authentication Middleware
 function authenticateToken(req, res, next) {
@@ -92,7 +92,7 @@ const loginLimiter = rateLimit({
 app.post("/login", loginLimiter, (req, res) => {
   const { password } = req.body;
 
-  if (password === ADMIN_PASSWORD) {
+  if (ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
     const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "12h" });
     return res.json({ success: true, token });
   } else {
