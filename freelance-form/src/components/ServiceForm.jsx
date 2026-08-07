@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
 
 // Helper to trigger pure CSS/JS confetti
 const triggerConfetti = () => {
@@ -38,15 +39,25 @@ const triggerConfetti = () => {
 };
 
 export default function ServiceForm({ service, onClose }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    location: "",
-    budget: "",
-    message: "",
-    service: service,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      location: "",
+      budget: "",
+      message: "",
+      service: service,
+    },
   });
+
+  const formData = watch();
 
   // pricing estimator states
   const [options, setOptions] = useState({
@@ -217,12 +228,7 @@ export default function ServiceForm({ service, onClose }) {
 
   const estimate = getPricingEstimate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // handleChange removed in favor of react-hook-form
 
   const handleOptionChange = (field, value) => {
     setOptions((prev) => ({
@@ -242,10 +248,7 @@ export default function ServiceForm({ service, onClose }) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setFormData((current) => ({
-          ...current,
-          location: `Lat ${latitude.toFixed(6)}, Lng ${longitude.toFixed(6)}`,
-        }));
+        setValue("location", `Lat ${latitude.toFixed(6)}, Lng ${longitude.toFixed(6)}`);
         toast.success("Location fetched successfully");
         setLocating(false);
       },
@@ -260,8 +263,7 @@ export default function ServiceForm({ service, onClose }) {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmitForm = async (data) => {
     setLoading(true);
 
     const configuredText = useManualBudget
@@ -410,7 +412,7 @@ export default function ServiceForm({ service, onClose }) {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <form onSubmit={handleSubmit(onSubmitForm)} className="grid grid-cols-1 md:grid-cols-12 gap-8">
               
               {/* LEFT COLUMN: ESTIMATOR PANEL (40% width) */}
               <div className="md:col-span-5 space-y-5">
@@ -740,10 +742,8 @@ export default function ServiceForm({ service, onClose }) {
                         <input
                           name="budget"
                           placeholder="e.g. ₹10,000 or $150"
-                          value={formData.budget}
-                          onChange={handleChange}
+                          {...register("budget", { required: useManualBudget ? "Budget is required" : false })}
                           className="input-ultra"
-                          required={useManualBudget}
                         />
                       </div>
                     )}
@@ -754,7 +754,7 @@ export default function ServiceForm({ service, onClose }) {
                         onClick={() => {
                           setUseManualBudget(!useManualBudget);
                           if (!useManualBudget) {
-                            setFormData(prev => ({ ...prev, budget: "" }));
+                            setValue("budget", "");
                           }
                         }}
                         className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold underline transition duration-200"
@@ -772,25 +772,24 @@ export default function ServiceForm({ service, onClose }) {
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400 ml-1">Full Name</label>
                     <input
-                      name="name"
                       placeholder="John Doe"
-                      value={formData.name}
-                      onChange={handleChange}
+                      {...register("name", { required: "Name is required" })}
                       className="input-ultra"
-                      required
                     />
+                    {errors.name && <span className="text-red-400 text-[10px]">{errors.name.message}</span>}
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400 ml-1">Phone Number</label>
                     <input
-                      name="phone"
                       placeholder="10-digit number"
-                      value={formData.phone}
-                      onChange={handleChange}
+                      {...register("phone", { 
+                        required: "Phone is required",
+                        pattern: { value: /^[0-9]{10,15}$/, message: "Valid phone number required" }
+                      })}
                       className="input-ultra"
-                      required
                     />
+                    {errors.phone && <span className="text-red-400 text-[10px]">{errors.phone.message}</span>}
                   </div>
                 </div>
 
@@ -798,23 +797,22 @@ export default function ServiceForm({ service, onClose }) {
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400 ml-1">Email (Optional)</label>
                     <input
-                      name="email"
                       type="email"
                       placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
+                      {...register("email", { 
+                        pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
+                      })}
                       className="input-ultra"
                     />
+                    {errors.email && <span className="text-red-400 text-[10px]">{errors.email.message}</span>}
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400 ml-1">Location</label>
                     <div className="flex gap-2">
                       <input
-                        name="location"
                         placeholder="City, State"
-                        value={formData.location}
-                        onChange={handleChange}
+                        {...register("location")}
                         className="input-ultra flex-1"
                       />
                       <button
@@ -840,10 +838,8 @@ export default function ServiceForm({ service, onClose }) {
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-400 ml-1">Project Details / Message</label>
                   <textarea
-                    name="message"
                     placeholder="Describe your design parameters, target launch dates, features..."
-                    value={formData.message}
-                    onChange={handleChange}
+                    {...register("message")}
                     rows="3.5"
                     className="input-ultra resize-none"
                   />

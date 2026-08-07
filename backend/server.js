@@ -2,12 +2,52 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch"); // ✅ FIX HERE
+const fetch = require("node-fetch");
+const jwt = require("jsonwebtoken");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// 1. Security Headers
+app.use(helmet());
+
+// 2. Strict CORS Configuration (Only allow trusted domains)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://kanniyakumarione.com",
+  "https://forms.kanniyakumarione.com"
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
+
+// 3. Payload Size Limitation (Prevent massive payload crashes)
+app.use(express.json({ limit: "10kb" }));
+
+const JWT_SECRET = process.env.JWT_SECRET || "kanniyakumarione_super_secret_key_2026";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Rosi@1234";
+
+// JWT Authentication Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.status(401).json({ success: false, error: "Unauthorized: No token provided" });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ success: false, error: "Forbidden: Invalid token" });
+    req.user = user;
+    next();
+  });
+}
 
 async function callAppsScript(payload) {
   const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
@@ -41,19 +81,34 @@ async function callAppsScript(payload) {
   return data;
 }
 
-// 🔐 ADMIN LOGIN
-app.post("/login", (req, res) => {
+// 4. Rate Limiting for Admin Login (Max 5 attempts per 15 minutes)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, error: "Too many login attempts. Try again in 15 minutes." },
+});
+
+// 🔐 ADMIN LOGIN (Generates JWT)
+app.post("/login", loginLimiter, (req, res) => {
   const { password } = req.body;
 
-  if (password === "Rosi@1234") {
-    return res.json({ success: true });
+  if (password === ADMIN_PASSWORD) {
+    const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "12h" });
+    return res.json({ success: true, token });
   } else {
-    return res.status(401).json({ success: false });
+    return res.status(401).json({ success: false, error: "Invalid password" });
   }
 });
 
-// 📩 SUBMIT FORM (CREATE LEAD)
-app.post("/submit", async (req, res) => {
+// 5. Rate Limiting for Public Submissions (Prevent spamming Google Apps Script)
+const submitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Max 20 form submissions per IP per hour
+  message: { success: false, error: "Submission limit reached. Try again later." },
+});
+
+// 📩 SUBMIT FORM (CREATE LEAD) - Public
+app.post("/submit", submitLimiter, async (req, res) => {
   try {
     const data = await callAppsScript(req.body);
     res.json({ success: true, data });
@@ -63,8 +118,8 @@ app.post("/submit", async (req, res) => {
   }
 });
 
-// 📊 GET LEADS (SAFE VERSION - NO CRASH)
-app.get("/leads", async (req, res) => {
+// 📊 GET LEADS (SAFE VERSION - NO CRASH) - Protected
+app.get("/leads", authenticateToken, async (req, res) => {
   try {
     const response = await fetch(
       `${process.env.GOOGLE_SCRIPT_URL}?t=${Date.now()}`
@@ -89,7 +144,7 @@ app.get("/leads", async (req, res) => {
   }
 });
 
-// 🔍 PUBLIC LEAD TRACKING (BY PHONE)
+// 🔍 PUBLIC LEAD TRACKING (BY PHONE) - Public
 app.get("/track", async (req, res) => {
   const { phone } = req.query;
   if (!phone) {
@@ -134,8 +189,8 @@ app.get("/track", async (req, res) => {
   }
 });
 
-// 🔄 UPDATE STATUS / NOTES
-app.post("/update", async (req, res) => {
+// 🔄 UPDATE STATUS / NOTES - Protected
+app.post("/update", authenticateToken, async (req, res) => {
   try {
     const data = await callAppsScript(req.body);
     res.json({ success: true, data });
@@ -145,8 +200,8 @@ app.post("/update", async (req, res) => {
   }
 });
 
-// 🗑️ DELETE LEAD
-app.post("/delete", async (req, res) => {
+// 🗑️ DELETE LEAD - Protected
+app.post("/delete", authenticateToken, async (req, res) => {
   try {
     const data = await callAppsScript({
       action: "delete",

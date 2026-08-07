@@ -21,7 +21,12 @@ export default function AdminPanel() {
   const fetchData = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/leads?t=${Date.now()}`
+        `${import.meta.env.VITE_API_URL}/leads?t=${Date.now()}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        }
       );
       const result = await res.json();
       setData(result.data || []);
@@ -35,6 +40,7 @@ export default function AdminPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("adminToken")}`,
       },
       body: JSON.stringify({
         rowIndex: Number(rowIndex),
@@ -70,6 +76,7 @@ export default function AdminPanel() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("adminToken")}`,
         },
         body: JSON.stringify({
           rowIndex: Number(rowIndex),
@@ -358,7 +365,7 @@ export default function AdminPanel() {
 
             <button
               onClick={() => {
-                localStorage.removeItem("admin");
+                localStorage.removeItem("adminToken");
                 window.location.reload();
               }}
               className="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 text-red-400 rounded-xl text-sm font-semibold transition w-full sm:w-auto"
