@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#030303] flex flex-col items-center justify-center p-6 text-white text-center font-sans">
       <Helmet>
-        <title>404 - Page Not Found | Kanniyakumari One</title>
+        <title>404 - Page Not Found | SOFTGENZ</title>
         <meta name="description" content="The page you are looking for does not exist." />
       </Helmet>
 

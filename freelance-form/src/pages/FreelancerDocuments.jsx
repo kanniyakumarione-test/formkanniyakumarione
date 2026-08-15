@@ -32,12 +32,12 @@ const documentTypes = [
     description: "Define the client engagement, scope, payment expectations, and service terms.",
     instructionsTitle: "Terms & Conditions",
     instructionsLead:
-      "This Service Agreement outlines the professional terms governing the engagement between the client and KanniyakumariOne.",
+      "This Service Agreement outlines the professional terms governing the engagement between the client and SOFTGENZ.",
     instructionPoints: [
       "The client is expected to provide accurate project requirements, complete content, and timely approvals required for delivery.",
       "Payments must be completed in accordance with the agreed advance, milestone, or final-delivery schedule. Work beyond the approved scope may result in additional charges.",
       "Revisions are provided according to the selected service and approved scope. Refunds are generally not applicable once production has commenced.",
-      "KanniyakumariOne is not responsible for delays arising from incomplete content, delayed communication, or third-party platform dependencies.",
+      "SOFTGENZ is not responsible for delays arising from incomplete content, delayed communication, or third-party platform dependencies.",
     ],
     acknowledgement:
       "By generating this agreement, the client acknowledges and accepts these service terms.",
@@ -104,7 +104,7 @@ const documentTypes = [
     description: "Generate a branded invoice with amount, dates, and service details.",
     instructionsTitle: "Invoice Notes",
     instructionsLead:
-      "This invoice formally requests payment for approved freelance services delivered or scheduled by KanniyakumariOne.",
+      "This invoice formally requests payment for approved freelance services delivered or scheduled by SOFTGENZ.",
     instructionPoints: [
       "Include the invoice number, issue date, due date, billed services, and the final amount payable.",
       "Use the notes section to mention payment instructions, banking details, installment terms, or tax remarks.",
@@ -223,7 +223,7 @@ const buildDocumentContent = (typeKey, form) => {
     case "welcomeLetter":
       return {
         greeting: `Dear ${shared.clientName},`,
-        opening: "Welcome to KanniyakumariOne!",
+        opening: "Welcome to SOFTGENZ!",
         leadParagraph: `We are thrilled to have you as our new client. This letter confirms that you have engaged us to support ${shared.projectTitle} with professional digital services.`,
         summaryTitle: "Project Summary",
         summaryPoints: [
@@ -255,7 +255,7 @@ const buildDocumentContent = (typeKey, form) => {
           `Onboarding date: ${shared.onboardingDate}`,
         ],
         paragraphs: [
-          `This onboarding document records the approved project setup for ${shared.clientName} in relation to ${shared.projectTitle}. It serves as the initial operating reference for the engagement with KanniyakumariOne.`,
+          `This onboarding document records the approved project setup for ${shared.clientName} in relation to ${shared.projectTitle}. It serves as the initial operating reference for the engagement with SOFTGENZ.`,
           `The agreed service scope includes ${shared.services}. To ensure an efficient start, the client should provide timely approvals, accurate project information, and all required credentials or source materials.`,
           `The initial deliverables, required inputs, or requested assets include ${shared.deliverables}. Communication, revisions, and schedule confirmations will be coordinated throughout the engagement.`,
           `Additional onboarding notes and implementation instructions: ${shared.notes}`,
@@ -265,14 +265,14 @@ const buildDocumentContent = (typeKey, form) => {
       return {
         introTitle: "Confidentiality Details",
         introPoints: [
-          `Disclosing party: KanniyakumariOne`,
+          `Disclosing party: SOFTGENZ`,
           `Receiving party: ${shared.clientName}`,
           `Project: ${shared.projectTitle}`,
         ],
         paragraphs: [
-          `This Non-Disclosure Agreement is entered into between KanniyakumariOne and ${shared.clientName} in connection with discussions, planning, and execution related to ${shared.projectTitle}.`,
+          `This Non-Disclosure Agreement is entered into between SOFTGENZ and ${shared.clientName} in connection with discussions, planning, and execution related to ${shared.projectTitle}.`,
           `${shared.clientName} agrees to treat as confidential all non-public business, technical, creative, financial, and operational information shared during this engagement. Such information may include proposals, credentials, campaign data, source files, strategy documents, pricing, and client-specific materials.`,
-          `The receiving party shall not disclose, reproduce, or use confidential information for any purpose other than the agreed engagement without prior written consent from KanniyakumariOne. Appropriate care must be taken to protect all shared materials, documents, and access details.`,
+          `The receiving party shall not disclose, reproduce, or use confidential information for any purpose other than the agreed engagement without prior written consent from SOFTGENZ. Appropriate care must be taken to protect all shared materials, documents, and access details.`,
           `These confidentiality obligations take effect on ${shared.startDate} and remain in force until ${shared.endDate}, unless superseded by a later written agreement between the parties.`,
         ],
       };
@@ -305,7 +305,7 @@ const buildDocumentContent = (typeKey, form) => {
           `Payment mode: ${shared.paymentMode}`,
         ],
         paragraphs: [
-          `This payment receipt confirms that KanniyakumariOne has received ${formatMoney(shared.currency, shared.receivedAmount)} from ${shared.clientName} for ${shared.projectTitle}.`,
+          `This payment receipt confirms that SOFTGENZ has received ${formatMoney(shared.currency, shared.receivedAmount)} from ${shared.clientName} for ${shared.projectTitle}.`,
           `The total approved project value is ${formatMoney(shared.currency, shared.totalAmount)}. After this payment, the remaining balance is ${formatMoney(shared.currency, balanceAmount)}.`,
           `The receipt applies to the following services or scope: ${shared.services}.`,
           `Payment notes or references: ${shared.notes}`,
@@ -321,7 +321,7 @@ const buildDocumentContent = (typeKey, form) => {
           `Closure date: ${shared.offboardingDate}`,
         ],
         paragraphs: [
-          `This offboarding document confirms the formal closeout of ${shared.projectTitle} for ${shared.clientName}. It records the completion and handover stage of the engagement with KanniyakumariOne.`,
+          `This offboarding document confirms the formal closeout of ${shared.projectTitle} for ${shared.clientName}. It records the completion and handover stage of the engagement with SOFTGENZ.`,
           `The following materials, files, credentials, or deliverables form part of the final handover: ${shared.deliverables}. The client is expected to review, secure, and retain all final assets provided during project closure.`,
           `Any future revisions, maintenance requests, or additional development work requested after offboarding may be treated as a separate engagement unless otherwise agreed in writing.`,
           `Final closure notes and recommendations: ${shared.notes}`,
@@ -337,10 +337,10 @@ const buildDocumentContent = (typeKey, form) => {
           `Start date: ${shared.startDate}`,
         ],
         paragraphs: [
-          `This Service Agreement is entered into between ${shared.clientName} and KanniyakumariOne for ${shared.projectTitle}, under the terms set out in this document.`,
-          `The client agrees to provide accurate project information, required content, and timely approvals. KanniyakumariOne will use reasonable professional efforts to deliver the agreed services, namely ${shared.services}, in accordance with the approved scope and timeline.`,
+          `This Service Agreement is entered into between ${shared.clientName} and SOFTGENZ for ${shared.projectTitle}, under the terms set out in this document.`,
+          `The client agrees to provide accurate project information, required content, and timely approvals. SOFTGENZ will use reasonable professional efforts to deliver the agreed services, namely ${shared.services}, in accordance with the approved scope and timeline.`,
           `The client shall complete the agreed advance or milestone payments as scheduled. The current estimated project value is ${shared.currency} ${shared.amount}. Any additional features or services requested outside the approved scope may be billed separately.`,
-          `Once production has commenced, refunds are not generally applicable. Delays caused by incomplete assets, delayed communication, or third-party tools and services are outside the responsibility of KanniyakumariOne.`,
+          `Once production has commenced, refunds are not generally applicable. Delays caused by incomplete assets, delayed communication, or third-party tools and services are outside the responsibility of SOFTGENZ.`,
           `By signing this agreement, the client confirms that these terms have been read and accepted, and acknowledges that this digitally generated document is valid without a physical signature.`,
         ],
       };
@@ -429,7 +429,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     doc.addImage(logo, "PNG", 20, 10, 25, 15);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("KanniyakumariOne", 50, 18);
+    doc.text("SOFTGENZ", 50, 18);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -515,7 +515,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
       y += 7;
 
       doc.setFont("helvetica", "normal");
-      doc.text("KanniyakumariOne Freelance Digital Services", 20, y);
+      doc.text("SOFTGENZ Freelance Digital Services", 20, y);
     } else if (isInvoice) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
@@ -675,7 +675,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     }
 
     if (!isWelcomeLetter) {
-      doc.text("For KanniyakumariOne:", 120, y);
+      doc.text("For SOFTGENZ:", 120, y);
       doc.line(120, y + 10, 180, y + 10);
       doc.text(form.companyRepresentative || "Authorized Signatory", 120, y + 8);
     }
@@ -695,7 +695,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
       doc.setTextColor(40, 70, 160);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text("KANNIYAKUMARIONE", stampX + 40, stampY + 10, {
+      doc.text("SOFTGENZ", stampX + 40, stampY + 10, {
         align: "center",
       });
       doc.setFontSize(9);
@@ -715,7 +715,7 @@ export default function FreelancerDocuments({ initialType = "agreement" }) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.text(
-      "This document is digitally generated by KanniyakumariOne and is valid without physical signature.",
+      "This document is digitally generated by SOFTGENZ and is valid without physical signature.",
       105,
       footerY,
       { align: "center" }

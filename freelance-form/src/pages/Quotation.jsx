@@ -52,7 +52,7 @@ export default function Quotation() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("KanniyakumariOne", 55, 18);
+    doc.text("SOFTGENZ", 55, 18);
 
     doc.setFontSize(10);
     doc.setTextColor(120);

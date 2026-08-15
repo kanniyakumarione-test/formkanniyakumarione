@@ -202,7 +202,7 @@ const reviews = [
   {
     name: "Aravind K.",
     role: "Local Store Owner",
-    text: "KanniyakumariOne built our local business profile and custom website. Our customer walk-ins increased by 40% in just two months!",
+    text: "SOFTGENZ built our local business profile and custom website. Our customer walk-ins increased by 40% in just two months!",
   },
   {
     name: "Meera Nair",
@@ -306,7 +306,7 @@ export default function ServiceCards({ onSelect }) {
           </span>
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter font-outfit text-white leading-none">
-            Kanniyakumari<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">One</span>
+            SOFT<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">GENZ</span>
           </h1>
 
           <p className="text-slate-400 mt-6 max-w-2xl text-base sm:text-lg leading-relaxed font-medium">
@@ -559,7 +559,7 @@ export default function ServiceCards({ onSelect }) {
         
         {/* Footer info / Contact shortcut */}
         <div className="text-center mt-28 text-xs text-slate-600 font-bold tracking-wide">
-          <p>© {new Date().getFullYear()} KanniyakumariOne. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SOFTGENZ. All rights reserved.</p>
         </div>
 
       </div>

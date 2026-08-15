@@ -68,8 +68,8 @@ function App() {
               element={
                 <div className="min-h-screen bg-black text-white">
                   <Helmet>
-                    <title>Kanniyakumari One | Interactive Service Portal</title>
-                    <meta name="description" content="Build your next website, app, or brand with Kanniyakumari One." />
+                    <title>SOFTGENZ | Interactive Service Portal</title>
+                    <meta name="description" content="Build your next website, app, or brand with SOFTGENZ." />
                   </Helmet>
                   <ServiceCards onSelect={setSelectedService} />
                   {selectedService && (
@@ -88,12 +88,12 @@ function App() {
               element={
                 isAdmin ? (
                   <>
-                    <Helmet><title>Admin Panel | Kanniyakumari One</title></Helmet>
+                    <Helmet><title>Admin Panel | SOFTGENZ</title></Helmet>
                     <AdminPanel />
                   </>
                 ) : (
                   <>
-                    <Helmet><title>Admin Login | Kanniyakumari One</title></Helmet>
+                    <Helmet><title>Admin Login | SOFTGENZ</title></Helmet>
                     <AdminLoginModal onLogin={handleLogin} />
                   </>
                 )
@@ -103,14 +103,14 @@ function App() {
             {/* Other Pages */}
             <Route path="/quotation" element={
               <>
-                <Helmet><title>Project Quotation | Kanniyakumari One</title></Helmet>
+                <Helmet><title>Project Quotation | SOFTGENZ</title></Helmet>
                 <Quotation />
               </>
             } />
             
             <Route path="/tracker" element={
               <>
-                <Helmet><title>Live Project Tracker | Kanniyakumari One</title></Helmet>
+                <Helmet><title>Live Project Tracker | SOFTGENZ</title></Helmet>
                 <RequestTracker />
               </>
             } />
@@ -123,7 +123,7 @@ function App() {
                 path={path}
                 element={
                   <>
-                    <Helmet><title>Client Documents | Kanniyakumari One</title></Helmet>
+                    <Helmet><title>Client Documents | SOFTGENZ</title></Helmet>
                     <FreelancerDocuments initialType={routeToType[path]} />
                   </>
                 }

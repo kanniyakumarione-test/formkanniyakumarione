@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 
 export default function AdminPanel() {
   const [data, setData] = useState([]);
@@ -372,6 +373,48 @@ export default function AdminPanel() {
             >
               Sign Out
             </button>
+          </div>
+        </div>
+
+        {/* ANALYTICS CHARTS */}
+        <div className="bg-white/[0.01] border border-white/[0.05] rounded-3xl p-6 sm:p-8 mb-8 backdrop-blur-md">
+          <h2 className="text-lg font-bold font-outfit text-white mb-6">Top Requested Services</h2>
+          <div className="h-[250px] w-full">
+            {data.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Object.entries(
+                    data.reduce((acc, curr) => {
+                      let s = (curr.service || "Other").split("(")[0].trim();
+                      if(s.length > 20) s = s.substring(0, 20) + "...";
+                      acc[s] = (acc[s] || 0) + 1;
+                      return acc;
+                    }, {})
+                  )
+                    .map(([name, count]) => ({ name, count }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 5)}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip 
+                    cursor={{fill: '#ffffff05'}}
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', fontSize: '12px' }}
+                  />
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                    {
+                      data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'][index % 5]} />
+                      ))
+                    }
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">Waiting for lead data...</div>
+            )}
           </div>
         </div>
 

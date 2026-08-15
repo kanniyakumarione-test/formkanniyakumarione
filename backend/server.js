@@ -17,7 +17,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "https://kanniyakumarione.com",
-  "https://forms.kanniyakumarione.com"
+  "https://forms.kanniyakumarione.com",
+  "https://softgenz.kanniyakumarione.com"
 ];
 app.use(cors({
   origin: function (origin, callback) {
