@@ -277,7 +277,7 @@ export default function ServiceForm({ service, onClose }) {
     };
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/submit`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -285,10 +285,16 @@ export default function ServiceForm({ service, onClose }) {
         body: JSON.stringify(finalPayload),
       });
 
+      const resData = await res.json().catch(() => ({}));
+
+      if (!res.ok || resData.success === false) {
+        throw new Error(resData.error || "Failed to submit request.");
+      }
+
       triggerConfetti();
       setShowCelebration(true);
     } catch (err) {
-      toast.error("Error submitting request");
+      toast.error(err.message || "Error submitting request. Please try again.");
     } finally {
       setLoading(false);
     }

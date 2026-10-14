@@ -29,6 +29,13 @@ export default function AdminPanel() {
           },
         }
       );
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("adminToken");
+        window.location.reload();
+        return;
+      }
+
       const result = await res.json();
       setData(result.data || []);
     } catch {

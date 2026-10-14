@@ -9,6 +9,9 @@ const rateLimit = require("express-rate-limit");
 
 const app = express();
 
+// Enable trust proxy for platforms behind reverse proxy (Render, Cloudflare, etc.)
+app.set("trust proxy", 1);
+
 // 1. Security Headers
 app.use(helmet());
 
@@ -16,13 +19,20 @@ app.use(helmet());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "http://localhost:3000",
   "https://kanniyakumarione.com",
   "https://forms.kanniyakumarione.com",
   "https://softgenz.kanniyakumarione.com"
 ];
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app") ||
+      origin.endsWith(".kanniyakumarione.com")
+    ) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -32,6 +42,11 @@ app.use(cors({
 
 // 3. Payload Size Limitation (Prevent massive payload crashes)
 app.use(express.json({ limit: "10kb" }));
+
+// Health Check endpoint for uptime monitors & hosting platforms
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || "kanniyakumarione_super_secret_key_2026";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -111,6 +126,11 @@ const submitLimiter = rateLimit({
 // 📩 SUBMIT FORM (CREATE LEAD) - Public
 app.post("/submit", submitLimiter, async (req, res) => {
   try {
+    const { name, phone, service } = req.body || {};
+    if (!name || !phone) {
+      return res.status(400).json({ success: false, error: "Name and phone number are required." });
+    }
+
     const data = await callAppsScript(req.body);
     res.json({ success: true, data });
   } catch (err) {
@@ -216,7 +236,7 @@ app.post("/delete", authenticateToken, async (req, res) => {
 });
 
 // 🚀 START SERVER
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
